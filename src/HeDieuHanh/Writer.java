@@ -69,7 +69,7 @@ public class Writer extends Operator implements Runnable {
     }
     
     public void write() {
-        if (this.random.nextInt(3) > 0) {
+        if (this.random.nextInt(5) > 0) {
             Item newItem = Item.create();
             this.listOfItems.add(newItem);
             this.delegate.didWrite(true, newItem, this.name);
