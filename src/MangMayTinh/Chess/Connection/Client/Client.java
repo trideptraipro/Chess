@@ -16,6 +16,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -33,7 +34,7 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
     Chessboard chessboard;
     boolean isMyTurn = false;
     boolean isFirstPlayer = false;
-    
+
     /**
      * Creates new form Client
      */
@@ -83,18 +84,27 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
         });
         this.listener.start();
     }
-    
+
     private void moveOpponent(Move move) {
+        System.out.println("Opponent's move: ");
         this.chessboard.move(move);
         this.isMyTurn = true;
         this.chessboard.setMessage("Your turn!");
     }
-    
+
     private void informResult(boolean isWinner) {
-        this.messageLabel.setText("YOU WIN!");
-        // todo: Show option
+        String message = "YOU WIN!";
+        if (!isWinner) {
+            message = "YOU LOSE!";
+        }
+        this.messageLabel.setText(message);
+        this.chessboard.setMessage(message);
+        JOptionPane.showMessageDialog(this, message, "", JOptionPane.INFORMATION_MESSAGE);
+        this.chessboard.destruct();
+        this.chessboard.dispose();
+        this.joinButton.setEnabled(true);
     }
-    
+
     private void startGame() {
         this.chessboard = new Chessboard();
         this.chessboard.setIsFirstPlayer(isFirstPlayer);
@@ -103,7 +113,7 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
         this.chessboard.setVisible(true);
         this.chessboard.setMessage("Your opponent's turn!");
     }
-    
+
     private void didChangeInput() {
         if (!this.serverIPTextField.getText().equals("") && !this.portTextField.getText().equals("") && !this.nameTextFiled.getText().equals("")) {
             this.joinButton.setEnabled(true);
@@ -111,7 +121,7 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
             this.joinButton.setEnabled(false);
         }
     }
-    
+
     private <T> void sendMessageToServer(MessageType type, T data) {
         try {
             sender.writeObject(type);
@@ -121,6 +131,7 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
             System.out.println(e.toString());
         }
     }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -187,7 +198,7 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
             }
         });
 
-        joinButton.setText("Join");
+        joinButton.setText("New Game");
         joinButton.setEnabled(false);
         joinButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -202,29 +213,28 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGap(168, 168, 168)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(168, 168, 168)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel3)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(nameTextFiled, javax.swing.GroupLayout.PREFERRED_SIZE, 322, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(jLabel2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(portTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 322, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(jLabel1)
-                                .addGap(29, 29, 29)
-                                .addComponent(serverIPTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 322, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(347, 347, 347)
-                        .addComponent(joinButton)))
+                        .addComponent(jLabel3)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(nameTextFiled, javax.swing.GroupLayout.PREFERRED_SIZE, 322, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(portTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 322, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addGap(29, 29, 29)
+                        .addComponent(serverIPTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 322, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(193, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGap(0, 0, Short.MAX_VALUE)
                 .addComponent(messageLabel)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(320, 320, 320)
+                .addComponent(joinButton)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -279,6 +289,7 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
             this.host = host;
             this.port = port;
             this.playerName = name;
+            this.joinButton.setEnabled(false);
             this.play();
         } catch (Exception e) {
             System.out.println(e);
@@ -293,10 +304,11 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
     public String getHost() {
         return host;
     }
+
     public String getPlayerName() {
         return playerName;
     }
-    
+
     /**
      * @param args the command line arguments
      */
@@ -356,6 +368,7 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
                 this.chessboard.setMessage("It's not your turn!");
                 return;
             }
+            System.out.println("My move: ");
             this.chessboard.setMessage("Your opponent's turn!");
             this.sender.writeObject(move);
             this.chessboard.move(move);

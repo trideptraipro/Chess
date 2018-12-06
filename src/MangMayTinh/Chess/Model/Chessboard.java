@@ -45,17 +45,20 @@ public class Chessboard extends javax.swing.JFrame {
     }
 
     public void move(Move move) {
-        Piece piece = this.getPieceAt(move.source);
-        if (piece == null) {
+        System.out.println("Move from: " + move.source.x + " " + move.source.y + " to : " + move.destination.x + " " + move.destination.y);
+        Piece sourcePiece = this.getPieceAt(move.source);
+        Piece destinationPiece = this.getPieceAt(move.destination);
+        if (sourcePiece == null) {
             System.out.println("there is no piece at " + move.source);
             return;
         }
-        Piece opponent = this.getPieceAt(move.destination);
-        if (opponent != null) {
+        if (destinationPiece != null) {
             System.out.println("Kill an enemy!");
-            opponent.setIsAlive(false);
-            this.playArea.remove(opponent);
-            this.deadPieces.add(opponent);
+            destinationPiece.setIsAlive(false);
+            this.playArea.remove(destinationPiece);
+            firstPlayerPieces.remove(destinationPiece);
+            secondPlayerPieces.remove(destinationPiece);
+            this.deadPieces.add(destinationPiece);
         }
         int x = move.getDestination().x;
         int y = move.getDestination().y;
@@ -63,25 +66,19 @@ public class Chessboard extends javax.swing.JFrame {
         String destinationKey = Square.getKey(move.destination);
         this.squares.get(sourceKey).turnToSecondaryColor();
         this.squares.get(destinationKey).turnToSecondaryColor();
-        piece.setLocation(x * this.chessWidth, y * this.chessWidth);
-        piece.setNowPosition(move.destination);
+        sourcePiece.setLocation(x * this.chessWidth, y * this.chessWidth);
+        sourcePiece.setNowPosition(move.destination);
         this.currentMove = move;
         this.turnToOriginalColor();
     }
 
     public int getWinner() {
-        for (Piece piece : this.firstPlayerPieces) {
+        for (Piece piece : this.deadPieces) {
             if (piece instanceof King) {
-                if (!piece.isAlive()) {
-                    return 2;
-                }
-            }
-        }
-
-        for (Piece piece : this.secondPlayerPieces) {
-            if (piece instanceof King) {
-                if (!piece.isAlive()) {
+                if (piece.isBelongToFirstPlayer()) {
                     return 1;
+                } else {
+                    return 2;
                 }
             }
         }
@@ -128,8 +125,8 @@ public class Chessboard extends javax.swing.JFrame {
         this.chessWidth = width;
 
         if (this.isFirstPlayer) {
-            this.addPieces(firstPlayerPieces, true, true);
-            this.addPieces(secondPlayerPieces, false, false);
+            this.addPieces(firstPlayerPieces, true, true);      // Mau trang -- O duoi
+            this.addPieces(secondPlayerPieces, false, false);   // Mau den -- O tren
         } else {
             this.addPieces(firstPlayerPieces, false, true);
             this.addPieces(secondPlayerPieces, true, false);
@@ -172,22 +169,34 @@ public class Chessboard extends javax.swing.JFrame {
                 int x = e.getX() / width;
                 int y = e.getY() / height;
                 Point point = new Point(x, y);
-                //System.out.println("Point: " + point.toString());
                 Piece piece = getPieceAt(point);
                 turnToOriginalColor();
                 if (firstPiece == null) {
-                    if (piece != null) {
-                        firstPiece = piece;
-                        showPossibleDestinations(piece);
-                    }
-                } else {
-                    Move move = new Move(firstPiece.getNowPosition(), point);
                     if (piece != null && piece.isBelongToFirstPlayer()) {
                         firstPiece = piece;
                         showPossibleDestinations(piece);
-                    } else if ((piece == null || (!piece.isBelongToFirstPlayer())) && firstPiece.isMoveAccepted(move) && delegate != null) {
-                        delegate.didMove(move);
-                        firstPiece = null;
+                    } else {
+                        System.out.println("Not your piece!");
+                    }
+                } else {
+                    Move move = new Move(firstPiece.getNowPosition(), point);
+                    if (piece == null) {
+                        if (firstPiece.isMoveAccepted(move) && delegate != null) {
+                            delegate.didMove(move);
+                            firstPiece = null;
+                        } else {
+                            firstPiece = null;
+                        }
+                    } else if (!piece.isBelongToFirstPlayer()) {
+                        if (firstPiece.isMoveAccepted(move) && delegate != null) {
+                            delegate.didMove(move);
+                            firstPiece = null;
+                        } else {
+                            firstPiece = null;
+                        }
+                    } else {
+                        firstPiece = piece;
+                        showPossibleDestinations(piece);
                     }
                 }
             }
@@ -214,6 +223,22 @@ public class Chessboard extends javax.swing.JFrame {
         });
     }
 
+    public void destruct() {
+        for (Piece piece : this.deadPieces) {
+            piece.chessboard = null;
+            piece = null;
+        }
+        for (Piece piece : this.firstPlayerPieces) {
+            piece.chessboard = null;
+            piece = null;
+        }
+        for (Piece piece : this.secondPlayerPieces) {
+            piece.chessboard = null;
+            piece = null;
+        }
+        this.delegate = null;
+    }
+
     //---------------------- private function -------------------------
     private void addPieces(ArrayList<Piece> playerPieces, boolean isLight, boolean isFirstPlayer) {
         String path = "src/MangMayTinh/Resource/Images/";
@@ -235,38 +260,38 @@ public class Chessboard extends javax.swing.JFrame {
         try {
             file = new File(path + King.className + ".gif");
             pieceImage = ImageIO.read(file);
-            King king = new King(new Point(3, position), pieceImage, isLight, this);
+            King king = new King(new Point(Math.abs(position - 3), position), pieceImage, isFirstPlayer, this);
             file = new File(path + Queen.className + ".gif");
             pieceImage = ImageIO.read(file);
-            Queen queen = new Queen(new Point(4, position), pieceImage, isLight, this);
+            Queen queen = new Queen(new Point(Math.abs(position - 4), position), pieceImage, isFirstPlayer, this);
             playerPieces.add(queen);
             playerPieces.add(king);
 
             file = new File(path + Rook.className + ".gif");
             pieceImage = ImageIO.read(file);
-            Rook leftRook = new Rook(new Point(0, position), pieceImage, isLight, this);
+            Rook leftRook = new Rook(new Point(0, position), pieceImage, isFirstPlayer, this);
             playerPieces.add(leftRook);
-            Rook rightRook = new Rook(new Point(7, position), pieceImage, isLight, this);
+            Rook rightRook = new Rook(new Point(7, position), pieceImage, isFirstPlayer, this);
             playerPieces.add(rightRook);
 
             file = new File(path + Knight.className + ".gif");
             pieceImage = ImageIO.read(file);
-            Knight leftKnight = new Knight(new Point(1, position), pieceImage, isLight, this);
+            Knight leftKnight = new Knight(new Point(1, position), pieceImage, isFirstPlayer, this);
             playerPieces.add(leftKnight);
-            Knight rightKnight = new Knight(new Point(6, position), pieceImage, isLight, this);
+            Knight rightKnight = new Knight(new Point(6, position), pieceImage, isFirstPlayer, this);
             playerPieces.add(rightKnight);
 
             file = new File(path + Bishop.className + ".gif");
             pieceImage = ImageIO.read(file);
-            Bishop leftBishop = new Bishop(new Point(2, position), pieceImage, isLight, this);
+            Bishop leftBishop = new Bishop(new Point(2, position), pieceImage, isFirstPlayer, this);
             playerPieces.add(leftBishop);
-            Bishop rightBishop = new Bishop(new Point(5, position), pieceImage, isLight, this);
+            Bishop rightBishop = new Bishop(new Point(5, position), pieceImage, isFirstPlayer, this);
             playerPieces.add(rightBishop);
 
             for (int i = 0; i < 8; i++) {
                 file = new File(path + Pawn.className + ".gif");
                 pieceImage = ImageIO.read(file);
-                Pawn pawn = new Pawn(new Point(i, Math.abs(position - 1)), pieceImage, isLight, this);
+                Pawn pawn = new Pawn(new Point(i, Math.abs(position - 1)), pieceImage, isFirstPlayer, this);
                 playerPieces.add(pawn);
             }
         } catch (IOException ex) {
@@ -286,8 +311,9 @@ public class Chessboard extends javax.swing.JFrame {
     private void turnToOriginalColor() {
         for (Map.Entry pair : this.squares.entrySet()) {
             Square square = (Square) pair.getValue();
-            Point point = square.getLocation();
+            Point point = square.getPosition();
             if (this.currentMove != null) {
+
                 if ((point.equals(this.currentMove.destination) || point.equals(this.currentMove.source))) {
                     continue;
                 }
@@ -305,44 +331,17 @@ public class Chessboard extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        playAreaContainer = new javax.swing.JPanel();
-        playArea = new javax.swing.JLayeredPane();
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
         message = new javax.swing.JLabel();
+        playArea = new javax.swing.JLayeredPane();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setBackground(new java.awt.Color(48, 46, 43));
         setForeground(new java.awt.Color(48, 46, 43));
+        setPreferredSize(new java.awt.Dimension(1200, 800));
         setResizable(false);
-
-        playAreaContainer.setBackground(new java.awt.Color(255, 255, 255));
-        playAreaContainer.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 2, true));
-        playAreaContainer.setBounds(new java.awt.Rectangle(0, 0, 640, 640));
-        playAreaContainer.setPreferredSize(new java.awt.Dimension(640, 640));
-
-        javax.swing.GroupLayout playAreaLayout = new javax.swing.GroupLayout(playArea);
-        playArea.setLayout(playAreaLayout);
-        playAreaLayout.setHorizontalGroup(
-            playAreaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 636, Short.MAX_VALUE)
-        );
-        playAreaLayout.setVerticalGroup(
-            playAreaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 636, Short.MAX_VALUE)
-        );
-
-        javax.swing.GroupLayout playAreaContainerLayout = new javax.swing.GroupLayout(playAreaContainer);
-        playAreaContainer.setLayout(playAreaContainerLayout);
-        playAreaContainerLayout.setHorizontalGroup(
-            playAreaContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(playArea)
-        );
-        playAreaContainerLayout.setVerticalGroup(
-            playAreaContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(playArea)
-        );
 
         jPanel1.setBackground(new java.awt.Color(204, 204, 255));
         jPanel1.setPreferredSize(new java.awt.Dimension(340, 150));
@@ -369,11 +368,11 @@ public class Chessboard extends javax.swing.JFrame {
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+            .addGap(0, 443, Short.MAX_VALUE)
         );
 
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
-        jPanel3.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(0, 0, 0), 2, true));
+        jPanel3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2));
 
         message.setForeground(new java.awt.Color(0, 51, 255));
         message.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -396,6 +395,22 @@ public class Chessboard extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
+        playArea.setBackground(new java.awt.Color(255, 255, 255));
+        playArea.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        playArea.setForeground(new java.awt.Color(255, 255, 255));
+        playArea.setPreferredSize(new java.awt.Dimension(640, 640));
+
+        javax.swing.GroupLayout playAreaLayout = new javax.swing.GroupLayout(playArea);
+        playArea.setLayout(playAreaLayout);
+        playAreaLayout.setHorizontalGroup(
+            playAreaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 638, Short.MAX_VALUE)
+        );
+        playAreaLayout.setVerticalGroup(
+            playAreaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 0, Short.MAX_VALUE)
+        );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -404,26 +419,26 @@ public class Chessboard extends javax.swing.JFrame {
                 .addGap(80, 80, 80)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
                     .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(playAreaContainer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 60, Short.MAX_VALUE)
+                    .addComponent(playArea, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(46, 46, 46)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
                     .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(80, 80, 80))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(26, Short.MAX_VALUE)
+                .addGap(19, 19, 19)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(26, 26, 26)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(playAreaContainer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(47, 47, 47)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addGap(76, 76, 76))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 64, Short.MAX_VALUE)
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(playArea, javax.swing.GroupLayout.DEFAULT_SIZE, 657, Short.MAX_VALUE))
+                .addGap(80, 80, 80))
         );
 
         pack();
@@ -471,7 +486,6 @@ public class Chessboard extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JLabel message;
     private javax.swing.JLayeredPane playArea;
-    private javax.swing.JPanel playAreaContainer;
     // End of variables declaration//GEN-END:variables
 
 }

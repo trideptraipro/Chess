@@ -42,6 +42,7 @@ public class Match implements Runnable {
         sendOperation(secondPlayer, MessageType.startGame);
         sendOperation(firstPlayer, MessageType.turn);
         this.chessboard = new Chessboard();
+        this.chessboard.setIsFirstPlayer(true);
         this.chessboard.drawChessboard();
         while (true) {
             try {
@@ -57,6 +58,7 @@ public class Match implements Runnable {
                 }
                 if (this.turn == 1) {
                     Move move = (Move) this.firstPlayer.receiver.readObject();
+                    this.chessboard.move(move);
                     this.transform(move); /////------------------ check
                     this.sendMessageTo(secondPlayer, MessageType.move, move);
                     turn = 2;
@@ -64,6 +66,7 @@ public class Match implements Runnable {
                     Move move = (Move) this.secondPlayer.receiver.readObject();
                     this.transform(move); /////------------------ check
                     this.sendMessageTo(firstPlayer, MessageType.move, move);
+                    this.chessboard.move(move);
                     turn = 1;
                 }
             } catch (IOException ex) {
@@ -72,7 +75,13 @@ public class Match implements Runnable {
                 Logger.getLogger(Match.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        //this.finalize();
+        try {
+            this.firstPlayer = null;
+            this.secondPlayer = null;
+            this.finalize();
+        } catch (Throwable ex) {
+            System.out.println("Can not destruct match!");
+        }
         System.out.println("Match ended!");
     }
 
