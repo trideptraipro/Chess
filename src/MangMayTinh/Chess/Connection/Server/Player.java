@@ -17,11 +17,20 @@ public class Player {
     Socket socket;
     ObjectOutputStream sender;
     ObjectInputStream receiver;
+    boolean isFirstPlayer = true;
 
     public Player(Socket socket, ObjectOutputStream sender, ObjectInputStream receiver) {
         this.socket = socket;
         this.sender = sender;
         this.receiver = receiver;
+    }
+
+    public boolean isFirstPlayer() {
+        return isFirstPlayer;
+    }
+
+    public void setIsFirstPlayer(boolean isFirstPlayer) {
+        this.isFirstPlayer = isFirstPlayer;
     }
 
     public Socket getSocket() {

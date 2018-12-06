@@ -6,12 +6,13 @@
 package MangMayTinh.Chess.Model;
 
 import java.awt.Point;
+import java.io.Serializable;
 
 /**
  *
  * @author thinhle
  */
-public class Move {
+public class Move implements Serializable {
     Point source;
     Point destination;
 

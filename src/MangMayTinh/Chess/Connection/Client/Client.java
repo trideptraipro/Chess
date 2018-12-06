@@ -32,6 +32,7 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
     Thread listener;
     Chessboard chessboard;
     boolean isMyTurn = false;
+    boolean isFirstPlayer = false;
     
     /**
      * Creates new form Client
@@ -58,14 +59,18 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
                                 moveOpponent(move);
                                 break;
                             case result:
-                                String result = (String) receiver.readObject();
-                                informResult(result);
+                                boolean isWinner = (boolean) receiver.readObject();
+                                informResult(isWinner);
                                 break;
                             case startGame:
                                 startGame();
                                 break;
                             case turn:
                                 isMyTurn = true;
+                                chessboard.setMessage("It's your turn!");
+                                break;
+                            case firstPlayer:
+                                isFirstPlayer = true;
                                 break;
                         }
                     } catch (IOException ex) {
@@ -82,16 +87,21 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
     private void moveOpponent(Move move) {
         this.chessboard.move(move);
         this.isMyTurn = true;
+        this.chessboard.setMessage("Your turn!");
     }
     
-    private void informResult(String result) {
-        
+    private void informResult(boolean isWinner) {
+        this.messageLabel.setText("YOU WIN!");
+        // todo: Show option
     }
     
     private void startGame() {
         this.chessboard = new Chessboard();
+        this.chessboard.setIsFirstPlayer(isFirstPlayer);
+        this.chessboard.drawChessboard();
         this.chessboard.setDelegate(this);
         this.chessboard.setVisible(true);
+        this.chessboard.setMessage("Your opponent's turn!");
     }
     
     private void didChangeInput() {
@@ -341,13 +351,17 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
 
     @Override
     public void didMove(Move move) {
-        if (!isMyTurn) {
-            this.chessboard.setMessage("It's not your turn!");
-            return;
+        try {
+            if (!isMyTurn) {
+                this.chessboard.setMessage("It's not your turn!");
+                return;
+            }
+            this.chessboard.setMessage("Your opponent's turn!");
+            this.sender.writeObject(move);
+            this.chessboard.move(move);
+            this.isMyTurn = false;
+        } catch (IOException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
-        System.out.println("Move: src - " + move.getSource().toString() + ", des - " + move.getDestination().toString());
-        this.sendMessageToServer(MessageType.move, move);
-        this.chessboard.move(move);
-        this.isMyTurn = false;
     }
 }

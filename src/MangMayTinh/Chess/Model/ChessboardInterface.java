@@ -5,8 +5,6 @@
  */
 package MangMayTinh.Chess.Model;
 
-import java.awt.Point;
-
 /**
  *
  * @author thinhle

@@ -13,14 +13,25 @@ import java.awt.image.BufferedImage;
  * @author thinhle
  */
 public class Knight extends Piece {
+
     static String className = "knight";
 
-    public Knight(Point nowPosition, BufferedImage image, boolean isBelongToFirstPlayer) {
-        super(nowPosition, image, isBelongToFirstPlayer);
+    public Knight(Point nowPosition, BufferedImage image, boolean isBelongToFirstPlayer, Chessboard chessboard) {
+        super(nowPosition, image, isBelongToFirstPlayer, chessboard);
     }
-    
+
     @Override
-    public boolean isMoveAccepted(Move move) {
-        return true;
+    public void generatePossibleDestination() {
+        possibleDestinations.clear();
+        int[][] offsets = { {-2, 1}, {-1, 2}, {1, 2}, {2, 1}, {2, -1}, {1, -2}, {-1, -2}, {-2, -1} };
+        for (int[] offset : offsets) {
+            Point destination = new Point(this.getNowPosition().x + offset[0], this.getNowPosition().y + offset[1]);
+            if (this.chessboard.isInsideChessboard(destination)) {
+                Piece piece = this.chessboard.getPieceAt(destination);
+                if (piece == null || (piece.isBelongToFirstPlayer() != this.isBelongToFirstPlayer())) {
+                    possibleDestinations.add(destination);
+                }
+            }
+        }
     }
 }

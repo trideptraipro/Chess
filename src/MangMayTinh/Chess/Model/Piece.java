@@ -7,6 +7,7 @@ package MangMayTinh.Chess.Model;
 
 import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
@@ -19,14 +20,27 @@ public abstract class Piece extends JLabel {
     private Point nowPosition;
     static String className = "piece";
     private boolean isBelongToFirstPlayer;
+    ArrayList<Point> possibleDestinations = new ArrayList<>();
+    Chessboard chessboard;
     
-    public Piece(Point nowPosition, BufferedImage image, boolean isBelongToFirstPlayer) {
+    public Piece(Point nowPosition, BufferedImage image, boolean isBelongToFirstPlayer, Chessboard chessboard) {
         super(new ImageIcon(image));
         this.nowPosition = nowPosition;
         this.isBelongToFirstPlayer = isBelongToFirstPlayer;
+        this.chessboard = chessboard;
     }
     
-    public abstract boolean isMoveAccepted(Move move);
+    public abstract void generatePossibleDestination();
+    
+    public boolean isMoveAccepted(Move move) {
+        this.generatePossibleDestination();
+        for (Point destination : this.possibleDestinations) {
+            if (destination.equals(move.destination)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public boolean isBelongToFirstPlayer() {
         return isBelongToFirstPlayer;
