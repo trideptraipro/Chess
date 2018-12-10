@@ -53,8 +53,8 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
                         MessageType type = (MessageType) receiver.readObject();
                         switch (type) {
                             case string:
-                                String message = (String) receiver.readObject();
-                                messageLabel.setText(message);
+                                String messageFromServer = (String) receiver.readObject();
+                                messageLabel.setText(messageFromServer);
                                 break;
                             case move:
                                 Move move = (Move) receiver.readObject();
@@ -74,8 +74,11 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
                                 isFirstPlayer = true;
                                 break;
                             case name:
-                                System.out.println("check point client name");
                                 secondPlayerName = (String) receiver.readObject();
+                                break;
+                            case message:
+                                String message = (String) receiver.readObject();
+                                chessboard.addMessageHistory(message, !isFirstPlayer);
                                 break;
                         }
                     } catch (IOException ex) {
@@ -94,7 +97,11 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
         this.chessboard.move(move);
         this.isMyTurn = true;
         this.chessboard.setMessage("Your turn!");
-        this.chessboard.switchTurn(1);
+        if (isFirstPlayer) {
+            this.chessboard.switchTurn(1);
+        } else {
+            this.chessboard.switchTurn(2);
+        }
     }
 
     private void informResult(boolean isWinner) {
@@ -388,6 +395,15 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
         this.sendMessageToServer(MessageType.move, move);
         this.chessboard.move(move);
         this.isMyTurn = false;
-        this.chessboard.switchTurn(2);
+        if (isFirstPlayer) {
+            this.chessboard.switchTurn(2);
+        } else {
+            this.chessboard.switchTurn(1);
+        }
+    }
+    
+    @Override
+    public void didSendMessage(String message) {
+        this.sendMessageToServer(MessageType.message, message);
     }
 }

@@ -54,7 +54,7 @@ public class Player implements Runnable {
                     case message:
                         String message = (String) receiver.readObject();
                         if (this.delegate != null) {
-                            this.delegate.setMessage(message, this.isFirstPlayer);
+                            this.delegate.didReceiveMessage(message, this.isFirstPlayer);
                         } else {
                             System.out.println("Can not message, please set delegate for player!");
                         }

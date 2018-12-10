@@ -13,6 +13,6 @@ import MangMayTinh.Chess.Model.Move;
  */
 public interface PlayerInterface {
     void setName(String name, boolean isFirstPlayer);
-    void setMessage(String message, boolean isFirstPlayer);
+    void didReceiveMessage(String message, boolean isFirstPlayer);
     void move(Move move, boolean isFirstPlayer);
 }

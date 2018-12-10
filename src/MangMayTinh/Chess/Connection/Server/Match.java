@@ -42,7 +42,6 @@ public class Match implements Runnable, PlayerInterface {
         this.chessboard = new Chessboard();
         this.chessboard.setIsFirstPlayer(true);
         this.chessboard.drawChessboard();
-        this.chessboard.setVisible(true);
         new Thread(this.firstPlayer).start();
         new Thread(this.secondPlayer).start();
         this.firstPlayer.sendOperation(MessageType.firstPlayer);
@@ -97,8 +96,12 @@ public class Match implements Runnable, PlayerInterface {
     }
 
     @Override
-    public synchronized void setMessage(String message, boolean isFirstPlayer) {
-
+    public synchronized void didReceiveMessage(String message, boolean isFirstPlayer) {
+        if (isFirstPlayer) {
+            this.secondPlayer.sendMessage(MessageType.message, message);
+        } else {
+            this.firstPlayer.sendMessage(MessageType.message, message);
+        }
     }
 
     @Override

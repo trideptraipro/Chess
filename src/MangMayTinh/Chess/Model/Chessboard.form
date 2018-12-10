@@ -302,13 +302,17 @@
         </Container>
         <Component class="javax.swing.JTextField" name="messageTextField">
           <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="messageTextFieldActionPerformed"/>
+            <EventHandler event="keyTyped" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="didTypeMessage"/>
           </Events>
         </Component>
         <Component class="javax.swing.JButton" name="sendMessageButton">
           <Properties>
             <Property name="text" type="java.lang.String" value="send"/>
+            <Property name="enabled" type="boolean" value="false"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="sendMessageButtonActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>

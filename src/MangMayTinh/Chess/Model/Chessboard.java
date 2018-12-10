@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
+import javax.swing.text.MutableAttributeSet;
+import javax.swing.text.StyledDocument;
 
 /**
  *
@@ -143,6 +145,7 @@ public class Chessboard extends javax.swing.JFrame {
 
     public void drawChessboard() {
         this.getContentPane().setBackground(new Color(48, 46, 43));
+        this.getRootPane().setDefaultButton(sendMessageButton);
         int width = this.playArea.getWidth() / 8;
         int height = this.playArea.getHeight() / 8;
         this.chessWidth = width;
@@ -260,6 +263,15 @@ public class Chessboard extends javax.swing.JFrame {
             piece = null;
         }
         this.delegate = null;
+    }
+    
+    public void addMessageHistory(String message, boolean isFirstPlayer) {
+        String messageHistory = this.messageTextArea.getText();
+        if (isFirstPlayer) {
+             this.messageTextArea.setText(messageHistory + "<b>" + this.firstPlayerName + "</b>" + ": " + message + "\n");
+        } else {
+            this.messageTextArea.setText(messageHistory + this.secondPlayerName + ": " + message + "\n");
+        }
     }
 
     //---------------------- private function -------------------------
@@ -497,13 +509,19 @@ public class Chessboard extends javax.swing.JFrame {
         messageTextArea.setRows(5);
         jScrollPane2.setViewportView(messageTextArea);
 
-        messageTextField.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                messageTextFieldActionPerformed(evt);
+        messageTextField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                didTypeMessage(evt);
             }
         });
 
         sendMessageButton.setText("send");
+        sendMessageButton.setEnabled(false);
+        sendMessageButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                sendMessageButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -614,9 +632,21 @@ public class Chessboard extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void messageTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_messageTextFieldActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_messageTextFieldActionPerformed
+    private void didTypeMessage(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_didTypeMessage
+        String message = this.messageTextField.getText();
+        if (message.isEmpty()) {
+            this.sendMessageButton.setEnabled(false);
+        } else {
+            this.sendMessageButton.setEnabled(true);
+        }
+    }//GEN-LAST:event_didTypeMessage
+
+    private void sendMessageButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendMessageButtonActionPerformed
+        String message = this.messageTextField.getText();
+        this.addMessageHistory(message, isFirstPlayer);
+        this.delegate.didSendMessage(message);
+        this.messageTextField.setText("");
+    }//GEN-LAST:event_sendMessageButtonActionPerformed
 
     /**
      * @param args the command line arguments
