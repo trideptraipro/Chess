@@ -3,12 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package MangMayTinh.Chess.Model;
+package MangMayTinh.Chess.Model.Enum;
 
 /**
  *
  * @author thinhle
  */
 public enum MessageType {
-    string, bool, move, result, startGame, turn, firstPlayer;
+    string, bool, move, message, result, startGame, turn, firstPlayer, name;
 }

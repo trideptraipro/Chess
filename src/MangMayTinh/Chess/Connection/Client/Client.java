@@ -6,8 +6,8 @@
 package MangMayTinh.Chess.Connection.Client;
 
 import MangMayTinh.Chess.Model.Chessboard;
-import MangMayTinh.Chess.Model.ChessboardInterface;
-import MangMayTinh.Chess.Model.MessageType;
+import MangMayTinh.Chess.Model.Interface.ChessboardInterface;
+import MangMayTinh.Chess.Model.Enum.MessageType;
 import MangMayTinh.Chess.Model.Move;
 import java.awt.Color;
 import java.io.IOException;
@@ -29,7 +29,8 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
     String host = "";
     ObjectOutputStream sender = null;
     ObjectInputStream receiver = null;
-    String playerName = "";
+    String firstPlayerName = "";
+    String secondPlayerName = "";
     Thread listener;
     Chessboard chessboard;
     boolean isMyTurn = false;
@@ -68,10 +69,13 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
                                 break;
                             case turn:
                                 isMyTurn = true;
-                                chessboard.setMessage("It's your turn!");
                                 break;
                             case firstPlayer:
                                 isFirstPlayer = true;
+                                break;
+                            case name:
+                                System.out.println("check point client name");
+                                secondPlayerName = (String) receiver.readObject();
                                 break;
                         }
                     } catch (IOException ex) {
@@ -90,6 +94,7 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
         this.chessboard.move(move);
         this.isMyTurn = true;
         this.chessboard.setMessage("Your turn!");
+        this.chessboard.switchTurn(1);
     }
 
     private void informResult(boolean isWinner) {
@@ -111,7 +116,16 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
         this.chessboard.drawChessboard();
         this.chessboard.setDelegate(this);
         this.chessboard.setVisible(true);
-        this.chessboard.setMessage("Your opponent's turn!");
+        if (this.isMyTurn) {
+            chessboard.setMessage("It's your turn!");
+        } else {
+            this.chessboard.setMessage("Your opponent's turn!");
+        }
+        if (this.isFirstPlayer) {
+            this.chessboard.setPlayerName(this.firstPlayerName, secondPlayerName);
+        } else {
+            this.chessboard.setPlayerName(secondPlayerName, this.firstPlayerName);
+        }
     }
 
     private void didChangeInput() {
@@ -286,9 +300,10 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
             this.messageLabel.setText("Connected to server!");
             this.sender = new ObjectOutputStream(this.socket.getOutputStream());
             this.receiver = new ObjectInputStream(this.socket.getInputStream());
+            this.sendMessageToServer(MessageType.name, name);
             this.host = host;
             this.port = port;
-            this.playerName = name;
+            this.firstPlayerName = name;
             this.joinButton.setEnabled(false);
             this.play();
         } catch (Exception e) {
@@ -306,7 +321,7 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
     }
 
     public String getPlayerName() {
-        return playerName;
+        return firstPlayerName;
     }
 
     /**
@@ -363,18 +378,16 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
 
     @Override
     public void didMove(Move move) {
-        try {
-            if (!isMyTurn) {
-                this.chessboard.setMessage("It's not your turn!");
-                return;
-            }
-            System.out.println("My move: ");
-            this.chessboard.setMessage("Your opponent's turn!");
-            this.sender.writeObject(move);
-            this.chessboard.move(move);
-            this.isMyTurn = false;
-        } catch (IOException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        System.out.println("Move from client: " + move.getSource().x + " " + move.getSource().y + " to : " + move.getDestination().x + " " + move.getDestination().y);
+        if (!isMyTurn) {
+            this.chessboard.setMessage("It's not your turn!");
+            return;
         }
+        System.out.println("My move: ");
+        this.chessboard.setMessage("Your opponent's turn!");
+        this.sendMessageToServer(MessageType.move, move);
+        this.chessboard.move(move);
+        this.isMyTurn = false;
+        this.chessboard.switchTurn(2);
     }
 }

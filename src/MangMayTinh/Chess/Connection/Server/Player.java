@@ -5,24 +5,114 @@
  */
 package MangMayTinh.Chess.Connection.Server;
 
+import MangMayTinh.Chess.Connection.Client.Client;
+import MangMayTinh.Chess.Model.Enum.MessageType;
+import MangMayTinh.Chess.Model.Interface.PlayerInterface;
+import MangMayTinh.Chess.Model.Move;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author thinhle
  */
-public class Player {
+public class Player implements Runnable {
+
     Socket socket;
     ObjectOutputStream sender;
     ObjectInputStream receiver;
-    boolean isFirstPlayer = true;
+    boolean isFirstPlayer = false;
+    PlayerInterface delegate;
+    boolean isReady = false;
+    boolean isRunning = true;
 
     public Player(Socket socket, ObjectOutputStream sender, ObjectInputStream receiver) {
         this.socket = socket;
         this.sender = sender;
         this.receiver = receiver;
+    }
+
+    @Override
+    public void run() {
+        while (this.isRunning) {
+            try {
+                MessageType type = (MessageType) receiver.readObject();
+                switch (type) {
+                    case move:
+                        Move move = (Move) receiver.readObject();
+                        if (this.delegate != null) {
+                            System.out.println("Move got: " + move.getSource().x + " " + move.getSource().y + " to : " + move.getDestination().x + " " + move.getDestination().y);
+                            this.delegate.move(move, this.isFirstPlayer);
+                        } else {
+                            System.out.println("Can not move, please set delegate for player!");
+                        }
+                        break;
+                    case message:
+                        String message = (String) receiver.readObject();
+                        if (this.delegate != null) {
+                            this.delegate.setMessage(message, this.isFirstPlayer);
+                        } else {
+                            System.out.println("Can not message, please set delegate for player!");
+                        }
+                        break;
+                    case name:
+                        String name = (String) receiver.readObject();
+                        if (this.delegate != null) {
+                            this.delegate.setName(name, this.isFirstPlayer);
+                        } else {
+                            System.out.println("Can not set name, please set delegate for player!");
+                        }
+                        break;
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+    
+    public <T> void sendMessage(MessageType type, T data) {
+        try {
+            this.sender.writeObject(type);
+            this.sender.writeObject(data);
+        } catch (Exception e) {
+            System.out.print("Send data Error: ");
+            System.out.println(e.toString());
+        }
+    }
+
+    public void sendOperation(MessageType type) {
+        try {
+            this.sender.writeObject(type);
+        } catch (Exception e) {
+            System.out.print("Send data Error: ");
+            System.out.println(e.toString());
+        }
+    }
+
+    public boolean isRunning() {
+        return isRunning;
+    }
+
+    public void setIsRunning(boolean isRunning) {
+        this.isRunning = isRunning;
+    }
+
+    public boolean isReady() {
+        return isReady;
+    }
+
+    public void setIsReady(boolean isReady) {
+        this.isReady = isReady;
+    }
+    
+    public void setDelegate(PlayerInterface delegate) {
+        this.delegate = delegate;
     }
 
     public boolean isFirstPlayer() {

@@ -5,7 +5,7 @@
  */
 package MangMayTinh.Chess.Connection.Server;
 
-import MangMayTinh.Chess.Model.MessageType;
+import MangMayTinh.Chess.Model.Enum.MessageType;
 import java.awt.Color;
 import java.io.IOException;
 import java.io.ObjectInputStream;

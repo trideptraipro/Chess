@@ -3,7 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package MangMayTinh.Chess.Model;
+package MangMayTinh.Chess.Model.Interface;
+
+import MangMayTinh.Chess.Model.Move;
 
 /**
  *

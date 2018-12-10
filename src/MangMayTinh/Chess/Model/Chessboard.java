@@ -5,6 +5,7 @@
  */
 package MangMayTinh.Chess.Model;
 
+import MangMayTinh.Chess.Model.Interface.ChessboardInterface;
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
 
 /**
  *
@@ -36,6 +38,8 @@ public class Chessboard extends javax.swing.JFrame {
     private final Color lightSelected = new Color(246, 246, 141);
     private Move currentMove = null;
     private boolean isFirstPlayer = true;
+    private String firstPlayerName = "";
+    private String secondPlayerName = "";
 
     /**
      * Creates new form Chessboard
@@ -69,6 +73,7 @@ public class Chessboard extends javax.swing.JFrame {
         sourcePiece.setLocation(x * this.chessWidth, y * this.chessWidth);
         sourcePiece.setNowPosition(move.destination);
         this.currentMove = move;
+        this.addMoveHistory();
         this.turnToOriginalColor();
     }
 
@@ -95,6 +100,24 @@ public class Chessboard extends javax.swing.JFrame {
 
     public void setMessage(String message) {
         this.message.setText(message);
+    }
+    
+    public void setPlayerName(String firstPlayerName, String secondPlayerName) {
+        this.firstPlayerName = firstPlayerName;
+        this.secondPlayerName = secondPlayerName;
+        this.firstPlayerNameLabel.setText(firstPlayerName);
+        this.secondPlayerNameLabel.setText(secondPlayerName);
+        this.switchTurn(1);
+    }
+    
+    public void switchTurn(int turn) {
+        if (turn == 1) {
+            this.firstPlayerNamePanel.setBorder(BorderFactory.createBevelBorder(0, Color.green, dark));
+            this.secondPlayerNamePanel.setBorder(BorderFactory.createEmptyBorder());
+        } else if (turn == 2) {
+            this.secondPlayerNamePanel.setBorder(BorderFactory.createBevelBorder(0, Color.green, dark));
+            this.firstPlayerNamePanel.setBorder(BorderFactory.createEmptyBorder());
+        }
     }
 
     public boolean isInsideChessboard(Point point) {
@@ -298,6 +321,24 @@ public class Chessboard extends javax.swing.JFrame {
             System.out.println("Load image error: " + ex.toString());
         }
     }
+    
+    private void addMoveHistory() {
+        String name;
+        Piece piece = this.getPieceAt(this.currentMove.destination);
+        if (piece == null) {
+            System.out.println("piece at current move destination null");
+            return;
+        }
+        if (piece.isBelongToFirstPlayer()) {
+            name = this.firstPlayerName;
+        } else {
+            name = this.secondPlayerName;
+        }
+        String moveHistoryString = this.moveHistory.getText();
+        String move = "\n" + name + ": (" + this.currentMove.source.x + ", " + this.currentMove.source.y + ") ==========> (" + this.currentMove.destination.x + ", " + this.currentMove.destination.y + ")";
+        moveHistoryString = moveHistoryString + move;
+        this.moveHistory.setText(moveHistoryString);
+    }
 
     private void showPossibleDestinations(Piece piece) {
         piece.generatePossibleDestination();
@@ -332,10 +373,24 @@ public class Chessboard extends javax.swing.JFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
+        secondPlayerNamePanel = new javax.swing.JPanel();
+        secondPlayerNameLabel = new javax.swing.JLabel();
+        firstPlayerNamePanel = new javax.swing.JPanel();
+        firstPlayerNameLabel = new javax.swing.JLabel();
+        moveHistoryContainer = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        moveHistory = new javax.swing.JTextArea();
         jPanel2 = new javax.swing.JPanel();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        messageTextArea = new javax.swing.JTextArea();
+        messageTextField = new javax.swing.JTextField();
+        sendMessageButton = new javax.swing.JButton();
+        playArea = new javax.swing.JLayeredPane();
         jPanel3 = new javax.swing.JPanel();
         message = new javax.swing.JLabel();
-        playArea = new javax.swing.JLayeredPane();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        jMenu2 = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setBackground(new java.awt.Color(48, 46, 43));
@@ -346,29 +401,151 @@ public class Chessboard extends javax.swing.JFrame {
         jPanel1.setBackground(new java.awt.Color(204, 204, 255));
         jPanel1.setPreferredSize(new java.awt.Dimension(340, 150));
 
+        secondPlayerNamePanel.setBackground(new java.awt.Color(255, 255, 255));
+
+        secondPlayerNameLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        secondPlayerNameLabel.setText("Player Name");
+
+        javax.swing.GroupLayout secondPlayerNamePanelLayout = new javax.swing.GroupLayout(secondPlayerNamePanel);
+        secondPlayerNamePanel.setLayout(secondPlayerNamePanelLayout);
+        secondPlayerNamePanelLayout.setHorizontalGroup(
+            secondPlayerNamePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(secondPlayerNamePanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(secondPlayerNameLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 139, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        secondPlayerNamePanelLayout.setVerticalGroup(
+            secondPlayerNamePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(secondPlayerNamePanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(secondPlayerNameLabel)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        firstPlayerNamePanel.setBackground(new java.awt.Color(255, 255, 255));
+
+        firstPlayerNameLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        firstPlayerNameLabel.setText("Player Name");
+
+        javax.swing.GroupLayout firstPlayerNamePanelLayout = new javax.swing.GroupLayout(firstPlayerNamePanel);
+        firstPlayerNamePanel.setLayout(firstPlayerNamePanelLayout);
+        firstPlayerNamePanelLayout.setHorizontalGroup(
+            firstPlayerNamePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(firstPlayerNamePanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(firstPlayerNameLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 147, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        firstPlayerNamePanelLayout.setVerticalGroup(
+            firstPlayerNamePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, firstPlayerNamePanelLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(firstPlayerNameLabel)
+                .addContainerGap())
+        );
+
+        moveHistoryContainer.setBackground(new java.awt.Color(255, 255, 255));
+
+        moveHistory.setEditable(false);
+        moveHistory.setColumns(20);
+        moveHistory.setRows(5);
+        jScrollPane1.setViewportView(moveHistory);
+
+        javax.swing.GroupLayout moveHistoryContainerLayout = new javax.swing.GroupLayout(moveHistoryContainer);
+        moveHistoryContainer.setLayout(moveHistoryContainerLayout);
+        moveHistoryContainerLayout.setHorizontalGroup(
+            moveHistoryContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1)
+        );
+        moveHistoryContainerLayout.setVerticalGroup(
+            moveHistoryContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 242, Short.MAX_VALUE)
+        );
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 340, Short.MAX_VALUE)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(moveHistoryContainer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(firstPlayerNamePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(secondPlayerNamePanel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 150, Short.MAX_VALUE)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(secondPlayerNamePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(firstPlayerNamePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(moveHistoryContainer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         jPanel2.setBackground(new java.awt.Color(51, 255, 51));
         jPanel2.setForeground(new java.awt.Color(102, 255, 102));
 
+        messageTextArea.setEditable(false);
+        messageTextArea.setColumns(20);
+        messageTextArea.setRows(5);
+        jScrollPane2.setViewportView(messageTextArea);
+
+        messageTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                messageTextFieldActionPerformed(evt);
+            }
+        });
+
+        sendMessageButton.setText("send");
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 340, Short.MAX_VALUE)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane2)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(messageTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(sendMessageButton)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 443, Short.MAX_VALUE)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(messageTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(sendMessageButton))
+                .addGap(16, 16, 16))
+        );
+
+        playArea.setBackground(new java.awt.Color(255, 255, 255));
+        playArea.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        playArea.setForeground(new java.awt.Color(255, 255, 255));
+        playArea.setPreferredSize(new java.awt.Dimension(640, 640));
+
+        javax.swing.GroupLayout playAreaLayout = new javax.swing.GroupLayout(playArea);
+        playArea.setLayout(playAreaLayout);
+        playAreaLayout.setHorizontalGroup(
+            playAreaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 638, Short.MAX_VALUE)
+        );
+        playAreaLayout.setVerticalGroup(
+            playAreaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 638, Short.MAX_VALUE)
         );
 
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
@@ -376,7 +553,7 @@ public class Chessboard extends javax.swing.JFrame {
 
         message.setForeground(new java.awt.Color(0, 51, 255));
         message.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        message.setText("message from server");
+        message.setText("Chess");
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -395,21 +572,13 @@ public class Chessboard extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        playArea.setBackground(new java.awt.Color(255, 255, 255));
-        playArea.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-        playArea.setForeground(new java.awt.Color(255, 255, 255));
-        playArea.setPreferredSize(new java.awt.Dimension(640, 640));
+        jMenu1.setText("File");
+        jMenuBar1.add(jMenu1);
 
-        javax.swing.GroupLayout playAreaLayout = new javax.swing.GroupLayout(playArea);
-        playArea.setLayout(playAreaLayout);
-        playAreaLayout.setHorizontalGroup(
-            playAreaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 638, Short.MAX_VALUE)
-        );
-        playAreaLayout.setVerticalGroup(
-            playAreaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
-        );
+        jMenu2.setText("Edit");
+        jMenuBar1.add(jMenu2);
+
+        setJMenuBar(jMenuBar1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -421,29 +590,33 @@ public class Chessboard extends javax.swing.JFrame {
                     .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(playArea, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(46, 46, 46)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(80, 80, 80))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(92, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(19, 19, 19)
+                .addGap(21, 21, 21)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGap(27, 27, 27)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 64, Short.MAX_VALUE)
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(playArea, javax.swing.GroupLayout.DEFAULT_SIZE, 657, Short.MAX_VALUE))
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(playArea, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(80, 80, 80))
         );
 
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
+
+    private void messageTextFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_messageTextFieldActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_messageTextFieldActionPerformed
 
     /**
      * @param args the command line arguments
@@ -481,11 +654,25 @@ public class Chessboard extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel firstPlayerNameLabel;
+    private javax.swing.JPanel firstPlayerNamePanel;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel message;
+    private javax.swing.JTextArea messageTextArea;
+    private javax.swing.JTextField messageTextField;
+    private javax.swing.JTextArea moveHistory;
+    private javax.swing.JPanel moveHistoryContainer;
     private javax.swing.JLayeredPane playArea;
+    private javax.swing.JLabel secondPlayerNameLabel;
+    private javax.swing.JPanel secondPlayerNamePanel;
+    private javax.swing.JButton sendMessageButton;
     // End of variables declaration//GEN-END:variables
 
 }

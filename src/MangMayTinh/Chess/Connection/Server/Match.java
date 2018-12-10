@@ -6,23 +6,22 @@
 package MangMayTinh.Chess.Connection.Server;
 
 import MangMayTinh.Chess.Model.Chessboard;
-import MangMayTinh.Chess.Model.MessageType;
+import MangMayTinh.Chess.Model.Enum.MessageType;
+import MangMayTinh.Chess.Model.Interface.PlayerInterface;
 import MangMayTinh.Chess.Model.Move;
 import java.awt.Point;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
  * @author thinhle
  */
-public class Match implements Runnable {
+public class Match implements Runnable, PlayerInterface {
 
     Player firstPlayer;
     Player secondPlayer;
     Chessboard chessboard;
     private int turn = 1; // 1: first player's turn ----- 2: second player's turn
+    private boolean isRunning = true;
 
     public Match(Player firstPlayer, Player sencondPlayer) {
         this.firstPlayer = firstPlayer;
@@ -37,61 +36,29 @@ public class Match implements Runnable {
 
     @Override
     public void run() {
-        sendOperation(firstPlayer, MessageType.firstPlayer);
-        sendOperation(firstPlayer, MessageType.startGame);
-        sendOperation(secondPlayer, MessageType.startGame);
-        sendOperation(firstPlayer, MessageType.turn);
+        this.firstPlayer.setDelegate(this);
+        this.secondPlayer.setDelegate(this);
+        this.firstPlayer.setIsFirstPlayer(true);
         this.chessboard = new Chessboard();
         this.chessboard.setIsFirstPlayer(true);
         this.chessboard.drawChessboard();
-        while (true) {
-            try {
-                int checkWinner = this.chessboard.getWinner();
-                if (checkWinner == 1) {
-                    sendMessageTo(firstPlayer, MessageType.result, true);
-                    sendMessageTo(secondPlayer, MessageType.result, false);
-                    break;
-                } else if (checkWinner == 2) {
-                    sendMessageTo(firstPlayer, MessageType.result, false);
-                    sendMessageTo(secondPlayer, MessageType.result, true);
-                    break;
-                }
-                if (this.turn == 1) {
-                    Move move = (Move) this.firstPlayer.receiver.readObject();
-                    this.chessboard.move(move);
-                    this.transform(move); /////------------------ check
-                    this.sendMessageTo(secondPlayer, MessageType.move, move);
-                    turn = 2;
-                } else {
-                    Move move = (Move) this.secondPlayer.receiver.readObject();
-                    this.transform(move); /////------------------ check
-                    this.sendMessageTo(firstPlayer, MessageType.move, move);
-                    this.chessboard.move(move);
-                    turn = 1;
-                }
-            } catch (IOException ex) {
-                Logger.getLogger(Match.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (ClassNotFoundException ex) {
-                Logger.getLogger(Match.class.getName()).log(Level.SEVERE, null, ex);
-            }
+        this.chessboard.setVisible(true);
+        new Thread(this.firstPlayer).start();
+        new Thread(this.secondPlayer).start();
+        this.firstPlayer.sendOperation(MessageType.firstPlayer);
+        while (this.isRunning) {
         }
-        try {
-            this.firstPlayer = null;
-            this.secondPlayer = null;
-            this.finalize();
-        } catch (Throwable ex) {
-            System.out.println("Can not destruct match!");
-        }
-        System.out.println("Match ended!");
     }
 
     private void transform(Move move) {
+        //System.out.println("Before trans: " + move.getSource().x + " " + move.getSource().y + " to : " + move.getDestination().x + " " + move.getDestination().y);
         Point destination = move.getDestination();
         Point source = move.getSource();
         destination.y = 7 - destination.y;
         destination.x = 7 - destination.x;
         source.y = 7 - source.y;
         source.x = 7 - source.x;
+        //System.out.println("After trans: " + move.getSource().x + " " + move.getSource().y + " to : " + move.getDestination().x + " " + move.getDestination().y);
     }
 
     private <T> void sendMessageTo(Player player, MessageType type, T data) {
@@ -110,6 +77,56 @@ public class Match implements Runnable {
         } catch (Exception e) {
             System.out.print("Send data Error: ");
             System.out.println(e.toString());
+        }
+    }
+
+    @Override
+    public synchronized void setName(String name, boolean isFirstPlayer) {
+        if (isFirstPlayer) {
+            this.secondPlayer.sendMessage(MessageType.name, name);
+            this.firstPlayer.setIsReady(true);
+        } else {
+            this.firstPlayer.sendMessage(MessageType.name, name);
+            this.secondPlayer.setIsReady(true);
+        }
+        if (this.firstPlayer.isReady() && this.secondPlayer.isReady()) {
+            this.firstPlayer.sendOperation(MessageType.turn);
+            this.firstPlayer.sendOperation(MessageType.startGame);
+            this.secondPlayer.sendOperation(MessageType.startGame);
+        }
+    }
+
+    @Override
+    public synchronized void setMessage(String message, boolean isFirstPlayer) {
+
+    }
+
+    @Override
+    public synchronized void move(Move move, boolean isFirstPlayer) {
+        if (isFirstPlayer && turn == 1) {
+            this.chessboard.move(move);
+            this.transform(move);
+            this.secondPlayer.sendMessage(MessageType.move, move);
+            turn = 2;
+        } else if (turn == 2) {
+            this.transform(move);
+            this.chessboard.move(move);
+            this.firstPlayer.sendMessage(MessageType.move, move);
+            turn = 1;
+        }
+        int checkWinner = this.chessboard.getWinner();
+        if (checkWinner == 1) {
+            sendMessageTo(firstPlayer, MessageType.result, true);
+            sendMessageTo(secondPlayer, MessageType.result, false);
+            this.isRunning = false;
+            this.firstPlayer.setIsRunning(false);
+            this.secondPlayer.setIsRunning(false);
+        } else if (checkWinner == 2) {
+            sendMessageTo(firstPlayer, MessageType.result, false);
+            sendMessageTo(secondPlayer, MessageType.result, true);
+            this.isRunning = false;
+            this.firstPlayer.setIsRunning(false);
+            this.secondPlayer.setIsRunning(false);
         }
     }
 }
