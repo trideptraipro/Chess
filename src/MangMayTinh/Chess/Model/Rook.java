@@ -5,6 +5,7 @@
  */
 package MangMayTinh.Chess.Model;
 
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ public class Rook extends Piece {
 
     static String className = "rook";
 
-    public Rook(Point nowPosition, BufferedImage image, boolean isBelongToFirstPlayer, Chessboard chessboard) {
+    public Rook(Point nowPosition, Image image, boolean isBelongToFirstPlayer, Chessboard chessboard) {
         super(nowPosition, image, isBelongToFirstPlayer, chessboard);
     }
 

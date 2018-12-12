@@ -14,8 +14,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
@@ -29,12 +27,13 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
     String host = "";
     ObjectOutputStream sender = null;
     ObjectInputStream receiver = null;
-    String firstPlayerName = "";
+    String myName = "";
     String secondPlayerName = "";
     Thread listener;
     Chessboard chessboard;
     boolean isMyTurn = false;
     boolean isFirstPlayer = false;
+    boolean isRunning = false;
 
     /**
      * Creates new form Client
@@ -45,12 +44,14 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
 
     // --------------------- private function ---------------------------
     private void play() {
+        this.isRunning = true;
         this.listener = new Thread(new Runnable() {
             @Override
             public void run() {
-                while (true) {
+                while (isRunning) {
                     try {
                         MessageType type = (MessageType) receiver.readObject();
+                        System.out.println("type: " + type);
                         switch (type) {
                             case string:
                                 String messageFromServer = (String) receiver.readObject();
@@ -82,9 +83,11 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
                                 break;
                         }
                     } catch (IOException ex) {
-                        Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+                        System.out.println("IO Exception: From client (play)");
+                        ex.printStackTrace();
                     } catch (ClassNotFoundException ex) {
-                        Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+                        System.out.println("Class Not Found Exception: From client (play)");
+                        ex.printStackTrace();
                     }
                 }
             }
@@ -105,16 +108,19 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
     }
 
     private void informResult(boolean isWinner) {
+        String title = this.myName;
         String message = "YOU WIN!";
         if (!isWinner) {
             message = "YOU LOSE!";
         }
         this.messageLabel.setText(message);
         this.chessboard.setMessage(message);
-        JOptionPane.showMessageDialog(this, message, "", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(this, message, title, JOptionPane.INFORMATION_MESSAGE);
         this.chessboard.destruct();
         this.chessboard.dispose();
         this.joinButton.setEnabled(true);
+        this.isRunning = false;
+        this.sendOperation(MessageType.endGame);
     }
 
     private void startGame() {
@@ -129,9 +135,9 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
             this.chessboard.setMessage("Your opponent's turn!");
         }
         if (this.isFirstPlayer) {
-            this.chessboard.setPlayerName(this.firstPlayerName, secondPlayerName);
+            this.chessboard.setPlayerName(this.myName, secondPlayerName);
         } else {
-            this.chessboard.setPlayerName(secondPlayerName, this.firstPlayerName);
+            this.chessboard.setPlayerName(secondPlayerName, this.myName);
         }
     }
 
@@ -149,6 +155,15 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
             sender.writeObject(data);
         } catch (Exception e) {
             System.out.print("Send data Error: Client");
+            System.out.println(e.toString());
+        }
+    }
+    
+    public void sendOperation(MessageType type) {
+        try {
+            this.sender.writeObject(type);
+        } catch (Exception e) {
+            System.out.print("Send data Error: ");
             System.out.println(e.toString());
         }
     }
@@ -310,7 +325,7 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
             this.sendMessageToServer(MessageType.name, name);
             this.host = host;
             this.port = port;
-            this.firstPlayerName = name;
+            this.myName = name;
             this.joinButton.setEnabled(false);
             this.play();
         } catch (Exception e) {
@@ -328,7 +343,7 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
     }
 
     public String getPlayerName() {
-        return firstPlayerName;
+        return myName;
     }
 
     /**
@@ -405,5 +420,10 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
     @Override
     public void didSendMessage(String message) {
         this.sendMessageToServer(MessageType.message, message);
+    }
+
+    @Override
+    public void didClickCloseChessboard() {
+        this.sendOperation(MessageType.surrender);
     }
 }

@@ -42,8 +42,8 @@ public class Match implements Runnable, PlayerInterface {
         this.chessboard = new Chessboard();
         this.chessboard.setIsFirstPlayer(true);
         this.chessboard.drawChessboard();
-        new Thread(this.firstPlayer).start();
-        new Thread(this.secondPlayer).start();
+        this.firstPlayer.start();
+        this.secondPlayer.start();
         this.firstPlayer.sendOperation(MessageType.firstPlayer);
         while (this.isRunning) {
         }
@@ -59,26 +59,7 @@ public class Match implements Runnable, PlayerInterface {
         source.x = 7 - source.x;
         //System.out.println("After trans: " + move.getSource().x + " " + move.getSource().y + " to : " + move.getDestination().x + " " + move.getDestination().y);
     }
-
-    private <T> void sendMessageTo(Player player, MessageType type, T data) {
-        try {
-            player.sender.writeObject(type);
-            player.sender.writeObject(data);
-        } catch (Exception e) {
-            System.out.print("Send data Error: ");
-            System.out.println(e.toString());
-        }
-    }
-
-    private void sendOperation(Player player, MessageType type) {
-        try {
-            player.sender.writeObject(type);
-        } catch (Exception e) {
-            System.out.print("Send data Error: ");
-            System.out.println(e.toString());
-        }
-    }
-
+    
     @Override
     public synchronized void setName(String name, boolean isFirstPlayer) {
         if (isFirstPlayer) {
@@ -119,17 +100,34 @@ public class Match implements Runnable, PlayerInterface {
         }
         int checkWinner = this.chessboard.getWinner();
         if (checkWinner == 1) {
-            sendMessageTo(firstPlayer, MessageType.result, true);
-            sendMessageTo(secondPlayer, MessageType.result, false);
-            this.isRunning = false;
-            this.firstPlayer.setIsRunning(false);
-            this.secondPlayer.setIsRunning(false);
+            this.firstPlayer.sendMessage(MessageType.result, true);
+            this.secondPlayer.sendMessage(MessageType.result, false);
         } else if (checkWinner == 2) {
-            sendMessageTo(firstPlayer, MessageType.result, false);
-            sendMessageTo(secondPlayer, MessageType.result, true);
+            this.firstPlayer.sendMessage(MessageType.result, false);
+            this.secondPlayer.sendMessage(MessageType.result, true);
+        }
+    }
+
+    @Override
+    public void surrender(boolean isFirstPlayer) {
+        if (isFirstPlayer) {
+            this.secondPlayer.sendMessage(MessageType.result, true);
+            this.firstPlayer.sendMessage(MessageType.result, false);
+        } else {
+            this.firstPlayer.sendMessage(MessageType.result, true);
+            this.secondPlayer.sendMessage(MessageType.result, false);
+        }
+    }
+
+    @Override
+    public void endGame(boolean isFirstPlayer) {
+        if (isFirstPlayer) {
+            this.firstPlayer.setIsReady(false);
+        } else {
+            this.secondPlayer.setIsReady(false);
+        }
+        if (!this.firstPlayer.isReady() && !this.secondPlayer.isReady()) {
             this.isRunning = false;
-            this.firstPlayer.setIsRunning(false);
-            this.secondPlayer.setIsRunning(false);
         }
     }
 }

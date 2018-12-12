@@ -5,6 +5,7 @@
  */
 package MangMayTinh.Chess.Model;
 
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -23,7 +24,7 @@ public abstract class Piece extends JLabel {
     ArrayList<Point> possibleDestinations = new ArrayList<>();
     Chessboard chessboard;
     
-    public Piece(Point nowPosition, BufferedImage image, boolean isBelongToFirstPlayer, Chessboard chessboard) {
+    public Piece(Point nowPosition, Image image, boolean isBelongToFirstPlayer, Chessboard chessboard) {
         super(new ImageIcon(image));
         this.nowPosition = nowPosition;
         this.isBelongToFirstPlayer = isBelongToFirstPlayer;

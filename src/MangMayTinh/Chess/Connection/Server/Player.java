@@ -5,7 +5,6 @@
  */
 package MangMayTinh.Chess.Connection.Server;
 
-import MangMayTinh.Chess.Connection.Client.Client;
 import MangMayTinh.Chess.Model.Enum.MessageType;
 import MangMayTinh.Chess.Model.Interface.PlayerInterface;
 import MangMayTinh.Chess.Model.Move;
@@ -20,7 +19,7 @@ import java.util.logging.Logger;
  *
  * @author thinhle
  */
-public class Player implements Runnable {
+public class Player extends Thread {
 
     Socket socket;
     ObjectOutputStream sender;
@@ -28,7 +27,7 @@ public class Player implements Runnable {
     boolean isFirstPlayer = false;
     PlayerInterface delegate;
     boolean isReady = false;
-    boolean isRunning = true;
+    boolean isRunning = false;
 
     public Player(Socket socket, ObjectOutputStream sender, ObjectInputStream receiver) {
         this.socket = socket;
@@ -38,8 +37,9 @@ public class Player implements Runnable {
 
     @Override
     public void run() {
-        while (this.isRunning) {
-            try {
+        this.isRunning = true;
+        try {
+            while (isRunning) {
                 MessageType type = (MessageType) receiver.readObject();
                 switch (type) {
                     case move:
@@ -67,12 +67,30 @@ public class Player implements Runnable {
                             System.out.println("Can not set name, please set delegate for player!");
                         }
                         break;
+                    case surrender:
+                        if (this.delegate != null) {
+                            this.delegate.surrender(this.isFirstPlayer);
+                        } else {
+                            System.out.println("Can not set name, please set delegate for player!");
+                        }
+                        break;
+                    case endGame:
+                        this.isRunning = false;
+                        if (this.delegate != null) {
+                            this.delegate.endGame(isFirstPlayer);
+                        } else {
+                            System.out.println("Can not end game, please set delegate for player!");
+                        }
+                        break;
+                    default:
+                        System.out.println("Can not cast data from socket to expect message type!");
+                        break;
                 }
-            } catch (IOException ex) {
-                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (ClassNotFoundException ex) {
-                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
             }
+        } catch (IOException ex) {
+            Logger.getLogger(Player.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Player.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
@@ -95,14 +113,6 @@ public class Player implements Runnable {
         }
     }
 
-    public boolean isRunning() {
-        return isRunning;
-    }
-
-    public void setIsRunning(boolean isRunning) {
-        this.isRunning = isRunning;
-    }
-
     public boolean isReady() {
         return isReady;
     }
@@ -110,7 +120,7 @@ public class Player implements Runnable {
     public void setIsReady(boolean isReady) {
         this.isReady = isReady;
     }
-    
+
     public void setDelegate(PlayerInterface delegate) {
         this.delegate = delegate;
     }

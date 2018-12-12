@@ -5,6 +5,7 @@
  */
 package MangMayTinh.Chess.Model;
 
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 
@@ -16,7 +17,7 @@ public class King extends Piece {
 
     static String className = "king";
 
-    public King(Point nowPosition, BufferedImage image, boolean isBelongToFirstPlayer, Chessboard chessboard) {
+    public King(Point nowPosition, Image image, boolean isBelongToFirstPlayer, Chessboard chessboard) {
         super(nowPosition, image, isBelongToFirstPlayer, chessboard);
     }
 

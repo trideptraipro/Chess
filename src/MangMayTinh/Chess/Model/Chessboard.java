@@ -7,6 +7,7 @@ package MangMayTinh.Chess.Model;
 
 import MangMayTinh.Chess.Model.Interface.ChessboardInterface;
 import java.awt.Color;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -18,8 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
-import javax.swing.text.MutableAttributeSet;
-import javax.swing.text.StyledDocument;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -27,6 +27,8 @@ import javax.swing.text.StyledDocument;
  */
 public class Chessboard extends javax.swing.JFrame {
 
+    private static final String extension = ".PNG";
+    private static final int imageRate = 6;
     ArrayList<Piece> firstPlayerPieces = new ArrayList<>();
     ArrayList<Piece> secondPlayerPieces = new ArrayList<>();
     ArrayList<Piece> deadPieces = new ArrayList<>();
@@ -103,7 +105,7 @@ public class Chessboard extends javax.swing.JFrame {
     public void setMessage(String message) {
         this.message.setText(message);
     }
-    
+
     public void setPlayerName(String firstPlayerName, String secondPlayerName) {
         this.firstPlayerName = firstPlayerName;
         this.secondPlayerName = secondPlayerName;
@@ -111,7 +113,7 @@ public class Chessboard extends javax.swing.JFrame {
         this.secondPlayerNameLabel.setText(secondPlayerName);
         this.switchTurn(1);
     }
-    
+
     public void switchTurn(int turn) {
         if (turn == 1) {
             this.firstPlayerNamePanel.setBorder(BorderFactory.createBevelBorder(0, Color.green, dark));
@@ -205,6 +207,7 @@ public class Chessboard extends javax.swing.JFrame {
                         System.out.println("Not your piece!");
                     }
                 } else {
+                    System.out.println("check point 2");
                     Move move = new Move(firstPiece.getNowPosition(), point);
                     if (piece == null) {
                         if (firstPiece.isMoveAccepted(move) && delegate != null) {
@@ -247,6 +250,25 @@ public class Chessboard extends javax.swing.JFrame {
 
             }
         });
+
+        this.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                int option = JOptionPane.showConfirmDialog(null,
+                        "Are you sure you want to close this chessboard?", "Close Window?",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE);
+                if ( option == JOptionPane.YES_OPTION) {
+                    if (delegate != null) {
+                        delegate.didClickCloseChessboard();
+                    } else {
+                        System.out.println("Please set delegate to handle close window event!");
+                    }
+                } else if (option == JOptionPane.NO_OPTION) {
+                    System.out.println("cancelled");
+                }
+            }
+        });
     }
 
     public void destruct() {
@@ -264,11 +286,11 @@ public class Chessboard extends javax.swing.JFrame {
         }
         this.delegate = null;
     }
-    
+
     public void addMessageHistory(String message, boolean isFirstPlayer) {
         String messageHistory = this.messageTextArea.getText();
         if (isFirstPlayer) {
-             this.messageTextArea.setText(messageHistory + "<b>" + this.firstPlayerName + "</b>" + ": " + message + "\n");
+            this.messageTextArea.setText(messageHistory + this.firstPlayerName + ": " + message + "\n");
         } else {
             this.messageTextArea.setText(messageHistory + this.secondPlayerName + ": " + message + "\n");
         }
@@ -292,48 +314,55 @@ public class Chessboard extends javax.swing.JFrame {
 
         File file;
         BufferedImage pieceImage;
+        Image pieceImageScale;
         try {
-            file = new File(path + King.className + ".gif");
+            file = new File(path + King.className + extension);
             pieceImage = ImageIO.read(file);
-            King king = new King(new Point(Math.abs(position - 3), position), pieceImage, isFirstPlayer, this);
-            file = new File(path + Queen.className + ".gif");
+            pieceImageScale = pieceImage.getScaledInstance(pieceImage.getWidth() / imageRate, pieceImage.getHeight() / imageRate, Image.SCALE_SMOOTH);
+            King king = new King(new Point(Math.abs(position - 3), position), pieceImageScale, isFirstPlayer, this);
+            file = new File(path + Queen.className + extension);
             pieceImage = ImageIO.read(file);
-            Queen queen = new Queen(new Point(Math.abs(position - 4), position), pieceImage, isFirstPlayer, this);
+            pieceImageScale = pieceImage.getScaledInstance(pieceImage.getWidth() / imageRate, pieceImage.getHeight() / imageRate, Image.SCALE_SMOOTH);
+            Queen queen = new Queen(new Point(Math.abs(position - 4), position), pieceImageScale, isFirstPlayer, this);
             playerPieces.add(queen);
             playerPieces.add(king);
 
-            file = new File(path + Rook.className + ".gif");
+            file = new File(path + Rook.className + extension);
             pieceImage = ImageIO.read(file);
-            Rook leftRook = new Rook(new Point(0, position), pieceImage, isFirstPlayer, this);
+            pieceImageScale = pieceImage.getScaledInstance(pieceImage.getWidth() / imageRate, pieceImage.getHeight() / imageRate, Image.SCALE_SMOOTH);
+            Rook leftRook = new Rook(new Point(0, position), pieceImageScale, isFirstPlayer, this);
             playerPieces.add(leftRook);
-            Rook rightRook = new Rook(new Point(7, position), pieceImage, isFirstPlayer, this);
+            Rook rightRook = new Rook(new Point(7, position), pieceImageScale, isFirstPlayer, this);
             playerPieces.add(rightRook);
 
-            file = new File(path + Knight.className + ".gif");
+            file = new File(path + Knight.className + extension);
             pieceImage = ImageIO.read(file);
-            Knight leftKnight = new Knight(new Point(1, position), pieceImage, isFirstPlayer, this);
+            pieceImageScale = pieceImage.getScaledInstance(pieceImage.getWidth() / imageRate, pieceImage.getHeight() / imageRate, Image.SCALE_SMOOTH);
+            Knight leftKnight = new Knight(new Point(1, position), pieceImageScale, isFirstPlayer, this);
             playerPieces.add(leftKnight);
-            Knight rightKnight = new Knight(new Point(6, position), pieceImage, isFirstPlayer, this);
+            Knight rightKnight = new Knight(new Point(6, position), pieceImageScale, isFirstPlayer, this);
             playerPieces.add(rightKnight);
 
-            file = new File(path + Bishop.className + ".gif");
+            file = new File(path + Bishop.className + extension);
             pieceImage = ImageIO.read(file);
-            Bishop leftBishop = new Bishop(new Point(2, position), pieceImage, isFirstPlayer, this);
+            pieceImageScale = pieceImage.getScaledInstance(pieceImage.getWidth() / imageRate, pieceImage.getHeight() / imageRate, Image.SCALE_SMOOTH);
+            Bishop leftBishop = new Bishop(new Point(2, position), pieceImageScale, isFirstPlayer, this);
             playerPieces.add(leftBishop);
-            Bishop rightBishop = new Bishop(new Point(5, position), pieceImage, isFirstPlayer, this);
+            Bishop rightBishop = new Bishop(new Point(5, position), pieceImageScale, isFirstPlayer, this);
             playerPieces.add(rightBishop);
 
             for (int i = 0; i < 8; i++) {
-                file = new File(path + Pawn.className + ".gif");
+                file = new File(path + Pawn.className + extension);
                 pieceImage = ImageIO.read(file);
-                Pawn pawn = new Pawn(new Point(i, Math.abs(position - 1)), pieceImage, isFirstPlayer, this);
+                pieceImageScale = pieceImage.getScaledInstance(pieceImage.getWidth() / imageRate, pieceImage.getHeight() / imageRate, Image.SCALE_SMOOTH);
+                Pawn pawn = new Pawn(new Point(i, Math.abs(position - 1)), pieceImageScale, isFirstPlayer, this);
                 playerPieces.add(pawn);
             }
         } catch (IOException ex) {
             System.out.println("Load image error: " + ex.toString());
         }
     }
-    
+
     private void addMoveHistory() {
         String name;
         Piece piece = this.getPieceAt(this.currentMove.destination);
@@ -347,7 +376,7 @@ public class Chessboard extends javax.swing.JFrame {
             name = this.secondPlayerName;
         }
         String moveHistoryString = this.moveHistory.getText();
-        String move = "\n" + name + ": (" + this.currentMove.source.x + ", " + this.currentMove.source.y + ") ==========> (" + this.currentMove.destination.x + ", " + this.currentMove.destination.y + ")";
+        String move = name + ": (" + this.currentMove.source.x + ", " + this.currentMove.source.y + ") ==========> (" + this.currentMove.destination.x + ", " + this.currentMove.destination.y + ")\n";
         moveHistoryString = moveHistoryString + move;
         this.moveHistory.setText(moveHistoryString);
     }
@@ -404,13 +433,12 @@ public class Chessboard extends javax.swing.JFrame {
         jMenu1 = new javax.swing.JMenu();
         jMenu2 = new javax.swing.JMenu();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setBackground(new java.awt.Color(48, 46, 43));
         setForeground(new java.awt.Color(48, 46, 43));
         setPreferredSize(new java.awt.Dimension(1200, 800));
         setResizable(false);
 
-        jPanel1.setBackground(new java.awt.Color(204, 204, 255));
         jPanel1.setPreferredSize(new java.awt.Dimension(340, 150));
 
         secondPlayerNamePanel.setBackground(new java.awt.Color(255, 255, 255));
@@ -501,22 +529,23 @@ public class Chessboard extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
-        jPanel2.setBackground(new java.awt.Color(51, 255, 51));
-        jPanel2.setForeground(new java.awt.Color(102, 255, 102));
-
         messageTextArea.setEditable(false);
         messageTextArea.setColumns(20);
         messageTextArea.setRows(5);
         jScrollPane2.setViewportView(messageTextArea);
 
+        messageTextField.setToolTipText("Enter your message");
         messageTextField.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
                 didTypeMessage(evt);
             }
         });
 
-        sendMessageButton.setText("send");
+        sendMessageButton.setIcon(new javax.swing.ImageIcon(getClass().getResource("/MangMayTinh/Resource/Images/commonIcons/sendIcon.png"))); // NOI18N
+        sendMessageButton.setBorderPainted(false);
+        sendMessageButton.setContentAreaFilled(false);
         sendMessageButton.setEnabled(false);
+        sendMessageButton.setFocusPainted(false);
         sendMessageButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 sendMessageButtonActionPerformed(evt);
@@ -532,10 +561,9 @@ public class Chessboard extends javax.swing.JFrame {
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane2)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(messageTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(messageTextField)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(sendMessageButton)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addComponent(sendMessageButton)))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
@@ -544,9 +572,9 @@ public class Chessboard extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(messageTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(sendMessageButton))
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(sendMessageButton)
+                    .addComponent(messageTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(16, 16, 16))
         );
 

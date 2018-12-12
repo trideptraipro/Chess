@@ -10,5 +10,5 @@ package MangMayTinh.Chess.Model.Enum;
  * @author thinhle
  */
 public enum MessageType {
-    string, bool, move, message, result, startGame, turn, firstPlayer, name;
+    string, bool, move, message, result, startGame, turn, firstPlayer, name, surrender, endGame;
 }

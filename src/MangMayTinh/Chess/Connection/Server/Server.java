@@ -138,7 +138,6 @@ public class Server extends javax.swing.JFrame {
         jMenuBar1 = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
         exitMenuItem = new javax.swing.JMenuItem();
-        jMenu2 = new javax.swing.JMenu();
 
         jMenuItem1.setText("jMenuItem1");
 
@@ -254,9 +253,6 @@ public class Server extends javax.swing.JFrame {
         fileMenu.add(exitMenuItem);
 
         jMenuBar1.add(fileMenu);
-
-        jMenu2.setText("Server");
-        jMenuBar1.add(jMenu2);
 
         setJMenuBar(jMenuBar1);
 
@@ -378,7 +374,6 @@ public class Server extends javax.swing.JFrame {
     private javax.swing.JLabel ipAddressLabel;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenu jMenu4;
     private javax.swing.JMenuBar jMenuBar1;
