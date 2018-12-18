@@ -40,6 +40,7 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
      */
     public Client() {
         initComponents();
+        this.getRootPane().setDefaultButton(joinButton);
     }
 
     // --------------------- private function ---------------------------
@@ -81,10 +82,13 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
                                 String message = (String) receiver.readObject();
                                 chessboard.addMessageHistory(message, !isFirstPlayer);
                                 break;
+                            default:
+                                System.out.println("Can not cast data from socket to expect message type!");
+                                break;
                         }
                     } catch (IOException ex) {
-                        System.out.println("IO Exception: From client (play)");
-                        ex.printStackTrace();
+                        System.out.println("IO Exception: From client (play): " + ex.getMessage());
+                        System.out.println("caused by: " + ex.getCause().toString());
                     } catch (ClassNotFoundException ex) {
                         System.out.println("Class Not Found Exception: From client (play)");
                         ex.printStackTrace();
@@ -158,7 +162,7 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
             System.out.println(e.toString());
         }
     }
-    
+
     public void sendOperation(MessageType type) {
         try {
             this.sender.writeObject(type);
@@ -416,7 +420,7 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
             this.chessboard.switchTurn(1);
         }
     }
-    
+
     @Override
     public void didSendMessage(String message) {
         this.sendMessageToServer(MessageType.message, message);

@@ -3,33 +3,15 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/Users/thinhle/NetBeansProjects/DoAnCoSoMang/src/MangMayTinh/Resource/Images/WhitePlayer/queen.PNG</file>
+            <file>file:/Users/thinhle/NetBeansProjects/DoAnCoSoMang/src/MangMayTinh/Chess/Connection/Client/Main.java</file>
+            <file>file:/Users/thinhle/NetBeansProjects/DoAnCoSoMang/src/MangMayTinh/Chess/Connection/Client/Client.java</file>
+            <file>file:/Users/thinhle/NetBeansProjects/DoAnCoSoMang/src/HeDieuHanh/ProcessUI.java</file>
+            <file>file:/Users/thinhle/NetBeansProjects/DoAnCoSoMang/src/MangMayTinh/Chess/Connection/Server/Player.java</file>
+            <file>file:/Users/thinhle/NetBeansProjects/DoAnCoSoMang/src/MangMayTinh/Chess/Connection/Server/Server.java</file>
             <file>file:/Users/thinhle/NetBeansProjects/DoAnCoSoMang/src/MangMayTinh/Chess/Model/Chessboard.java</file>
             <file>file:/Users/thinhle/NetBeansProjects/DoAnCoSoMang/src/MangMayTinh/Chess/Model/Knight.java</file>
             <file>file:/Users/thinhle/NetBeansProjects/DoAnCoSoMang/src/MangMayTinh/Chess/Connection/Server/Match.java</file>
-            <file>file:/Users/thinhle/NetBeansProjects/DoAnCoSoMang/src/MangMayTinh/Resource/Images/WhitePlayer/knight.PNG</file>
-            <file>file:/Users/thinhle/NetBeansProjects/DoAnCoSoMang/src/MangMayTinh/Chess/Model/Bishop.java</file>
-            <file>file:/Users/thinhle/NetBeansProjects/DoAnCoSoMang/src/MangMayTinh/Chess/Model/Rook.java</file>
-            <file>file:/Users/thinhle/NetBeansProjects/DoAnCoSoMang/src/MangMayTinh/Chess/Model/Interface/ChessboardInterface.java</file>
-            <file>file:/Users/thinhle/NetBeansProjects/DoAnCoSoMang/src/MangMayTinh/Chess/Connection/Server/Player.java</file>
-            <file>file:/Users/thinhle/NetBeansProjects/DoAnCoSoMang/src/MangMayTinh/Resource/Images/BlackPlayer/king.PNG</file>
-            <file>file:/Users/thinhle/NetBeansProjects/DoAnCoSoMang/src/MangMayTinh/Resource/Images/BlackPlayer/rook.PNG</file>
-            <file>file:/Users/thinhle/NetBeansProjects/DoAnCoSoMang/src/MangMayTinh/Resource/Images/WhitePlayer/bishop.PNG</file>
-            <file>file:/Users/thinhle/NetBeansProjects/DoAnCoSoMang/src/MangMayTinh/Resource/Images/WhitePlayer/king.PNG</file>
-            <file>file:/Users/thinhle/NetBeansProjects/DoAnCoSoMang/src/MangMayTinh/Resource/Images/BlackPlayer/knight.PNG</file>
-            <file>file:/Users/thinhle/NetBeansProjects/DoAnCoSoMang/src/MangMayTinh/Resource/Images/WhitePlayer/pawn.PNG</file>
-            <file>file:/Users/thinhle/NetBeansProjects/DoAnCoSoMang/src/MangMayTinh/Chess/Model/Enum/MessageType.java</file>
-            <file>file:/Users/thinhle/NetBeansProjects/DoAnCoSoMang/src/MangMayTinh/Chess/Model/Piece.java</file>
-            <file>file:/Users/thinhle/NetBeansProjects/DoAnCoSoMang/src/MangMayTinh/Resource/Images/BlackPlayer/queen.PNG</file>
-            <file>file:/Users/thinhle/NetBeansProjects/DoAnCoSoMang/src/MangMayTinh/Resource/Images/BlackPlayer/pawn.PNG</file>
-            <file>file:/Users/thinhle/NetBeansProjects/DoAnCoSoMang/src/MangMayTinh/Chess/Model/Pawn.java</file>
-            <file>file:/Users/thinhle/NetBeansProjects/DoAnCoSoMang/src/MangMayTinh/Chess/Connection/Client/Client.java</file>
-            <file>file:/Users/thinhle/NetBeansProjects/DoAnCoSoMang/src/MangMayTinh/Resource/Images/BlackPlayer/bishop.PNG</file>
-            <file>file:/Users/thinhle/NetBeansProjects/DoAnCoSoMang/src/MangMayTinh/Chess/Model/King.java</file>
-            <file>file:/Users/thinhle/NetBeansProjects/DoAnCoSoMang/src/MangMayTinh/Chess/Connection/Server/Server.java</file>
-            <file>file:/Users/thinhle/NetBeansProjects/DoAnCoSoMang/src/MangMayTinh/Chess/Model/Interface/PlayerInterface.java</file>
-            <file>file:/Users/thinhle/NetBeansProjects/DoAnCoSoMang/src/MangMayTinh/Resource/Images/WhitePlayer/rook.PNG</file>
-            <file>file:/Users/thinhle/NetBeansProjects/DoAnCoSoMang/src/MangMayTinh/Chess/Model/Queen.java</file>
+            <file>file:/Users/thinhle/NetBeansProjects/DoAnCoSoMang/src/MangMayTinh/Chess/Connection/Server/Main.java</file>
         </group>
     </open-files>
 </project-private>

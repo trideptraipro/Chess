@@ -36,6 +36,7 @@ public class Server extends javax.swing.JFrame {
         initComponents();
         InetAddress inetAddress = this.getInetAddress();
         this.ipAddressLabel.setText(inetAddress.getHostAddress());
+        this.getRootPane().setDefaultButton(startServerButton);
     }
     
     private void startServer(int port) {
