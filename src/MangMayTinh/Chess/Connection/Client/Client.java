@@ -60,7 +60,8 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
                                 break;
                             case move:
                                 Move move = (Move) receiver.readObject();
-                                moveOpponent(move);
+                                Move newMove = move.clone();
+                                moveOpponent(newMove);
                                 break;
                             case result:
                                 boolean isWinner = (boolean) receiver.readObject();
@@ -72,8 +73,10 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
                             case turn:
                                 isMyTurn = true;
                                 break;
-                            case firstPlayer:
-                                isFirstPlayer = true;
+                            case isFirstPlayer:
+                                boolean isFirst = (boolean) receiver.readObject();
+                                isFirstPlayer = isFirst;
+                                sendMessageToServer(MessageType.name, myName);
                                 break;
                             case name:
                                 secondPlayerName = (String) receiver.readObject();
@@ -326,7 +329,7 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
             this.messageLabel.setText("Connected to server!");
             this.sender = new ObjectOutputStream(this.socket.getOutputStream());
             this.receiver = new ObjectInputStream(this.socket.getInputStream());
-            this.sendMessageToServer(MessageType.name, name);
+            //this.sendMessageToServer(MessageType.name, name);
             this.host = host;
             this.port = port;
             this.myName = name;
@@ -404,12 +407,12 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
 
     @Override
     public void didMove(Move move) {
-        System.out.println("Move from client: " + move.getSource().x + " " + move.getSource().y + " to : " + move.getDestination().x + " " + move.getDestination().y);
+        //System.out.println("Move from client: " + move.getSource().x + " " + move.getSource().y + " to : " + move.getDestination().x + " " + move.getDestination().y);
         if (!isMyTurn) {
             this.chessboard.setMessage("It's not your turn!");
             return;
         }
-        System.out.println("My move: ");
+        //System.out.println("My move: ");
         this.chessboard.setMessage("Your opponent's turn!");
         this.sendMessageToServer(MessageType.move, move);
         this.chessboard.move(move);

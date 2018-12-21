@@ -20,6 +20,13 @@ public class Move implements Serializable {
         this.source = source;
         this.destination = destination;
     }
+    
+    public Move clone() {
+        Point source = (Point) this.source.clone();
+        Point destination = (Point) this.destination.clone();
+        Move newMove = new Move(source, destination);
+        return newMove;
+    }
 
     public Point getSource() {
         return source;

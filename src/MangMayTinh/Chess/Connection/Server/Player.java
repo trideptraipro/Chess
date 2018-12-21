@@ -46,7 +46,8 @@ public class Player extends Thread {
                         Move move = (Move) receiver.readObject();
                         if (this.delegate != null) {
                             System.out.println("Move got: " + move.getSource().x + " " + move.getSource().y + " to : " + move.getDestination().x + " " + move.getDestination().y);
-                            this.delegate.move(move, this.isFirstPlayer);
+                            Move newMove = move.clone();
+                            this.delegate.move(newMove, this.isFirstPlayer);
                         } else {
                             System.out.println("Can not move, please set delegate for player!");
                         }

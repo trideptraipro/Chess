@@ -75,7 +75,8 @@ public class Chessboard extends javax.swing.JFrame {
         this.squares.get(sourceKey).turnToSecondaryColor();
         this.squares.get(destinationKey).turnToSecondaryColor();
         sourcePiece.setLocation(x * this.chessWidth, y * this.chessWidth);
-        sourcePiece.setNowPosition(move.destination);
+        Point nowPosition = (Point) move.destination.clone();
+        sourcePiece.setNowPosition(nowPosition);
         this.currentMove = move;
         this.addMoveHistory();
         this.turnToOriginalColor();
@@ -151,15 +152,15 @@ public class Chessboard extends javax.swing.JFrame {
         int width = this.playArea.getWidth() / 8;
         int height = this.playArea.getHeight() / 8;
         this.chessWidth = width;
-
+        
         if (this.isFirstPlayer) {
-            this.addPieces(firstPlayerPieces, true, true);      // Mau trang -- O duoi
-            this.addPieces(secondPlayerPieces, false, false);   // Mau den -- O tren
+            this.addPieces(firstPlayerPieces, true, false);
+            this.addPieces(secondPlayerPieces, false, true);
         } else {
-            this.addPieces(firstPlayerPieces, false, true);
-            this.addPieces(secondPlayerPieces, true, false);
+            this.addPieces(firstPlayerPieces, true, true);
+            this.addPieces(secondPlayerPieces, false, false);
         }
-
+        
         for (Piece piece : this.firstPlayerPieces) {
             int x = piece.getNowPosition().x;
             int y = piece.getNowPosition().y;
@@ -200,23 +201,29 @@ public class Chessboard extends javax.swing.JFrame {
                 Piece piece = getPieceAt(point);
                 turnToOriginalColor();
                 if (firstPiece == null) {
-                    if (piece != null && piece.isBelongToFirstPlayer()) {
+                    System.out.println("check 1");
+                    if (piece != null && !(piece.isBelongToFirstPlayer() ^ isFirstPlayer)) {
+                        System.out.println("check 11");
                         firstPiece = piece;
                         showPossibleDestinations(piece);
                     } else {
+                        System.out.println("check 12");
                         System.out.println("Not your piece!");
                     }
                 } else {
-                    System.out.println("check point 2");
-                    Move move = new Move(firstPiece.getNowPosition(), point);
+                    System.out.println("check 2");
+                    Point source = (Point) firstPiece.getNowPosition().clone();
+                    Move move = new Move(source, point);
                     if (piece == null) {
+                        System.out.println("check 21");
                         if (firstPiece.isMoveAccepted(move) && delegate != null) {
                             delegate.didMove(move);
                             firstPiece = null;
                         } else {
                             firstPiece = null;
                         }
-                    } else if (!piece.isBelongToFirstPlayer()) {
+                    } else if ((piece.isBelongToFirstPlayer() ^ isFirstPlayer)) {
+                        System.out.println("check 22");
                         if (firstPiece.isMoveAccepted(move) && delegate != null) {
                             delegate.didMove(move);
                             firstPiece = null;
@@ -224,6 +231,7 @@ public class Chessboard extends javax.swing.JFrame {
                             firstPiece = null;
                         }
                     } else {
+                        System.out.println("check 23");
                         firstPiece = piece;
                         showPossibleDestinations(piece);
                     }
@@ -262,6 +270,7 @@ public class Chessboard extends javax.swing.JFrame {
                     if (delegate != null) {
                         delegate.didClickCloseChessboard();
                     } else {
+                        closeChessboard();
                         System.out.println("Please set delegate to handle close window event!");
                     }
                 } else if (option == JOptionPane.NO_OPTION) {
@@ -297,19 +306,19 @@ public class Chessboard extends javax.swing.JFrame {
     }
 
     //---------------------- private function -------------------------
-    private void addPieces(ArrayList<Piece> playerPieces, boolean isLight, boolean isFirstPlayer) {
+    private void addPieces(ArrayList<Piece> playerPieces, boolean isFirstPlayer, boolean isAbove) {
         String path = "src/MangMayTinh/Resource/Images/";
         int position = 7;
-        if (isLight) {
+        if (isFirstPlayer) {
             path += "WhitePlayer/";
         } else {
             path += "BlackPlayer/";
         }
 
-        if (isFirstPlayer) {
-            position = 7;
-        } else {
+        if (isAbove) {
             position = 0;
+        } else {
+            position = 7;
         }
 
         File file;
@@ -370,6 +379,10 @@ public class Chessboard extends javax.swing.JFrame {
             System.out.println("piece at current move destination null");
             return;
         }
+        System.out.println(this.isFirstPlayer);
+        System.out.println(this.firstPlayerName);
+        System.out.println(this.secondPlayerName);
+        System.out.println(piece.isBelongToFirstPlayer());
         if (piece.isBelongToFirstPlayer()) {
             name = this.firstPlayerName;
         } else {
@@ -402,6 +415,10 @@ public class Chessboard extends javax.swing.JFrame {
             }
             square.turnToOriginalColor();
         }
+    }
+    
+    private void closeChessboard() {
+        this.dispose();
     }
 
     /**
