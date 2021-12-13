@@ -5,10 +5,12 @@
  */
 package MangMayTinh.Chess.Model.Enum;
 
+import java.io.Serializable;
+
 /**
  *
  * @author thinhle
  */
-public enum MessageType {
-    string, bool, move, message, result, startGame, turn, isFirstPlayer, name, surrender, endGame;
+public enum MessageType implements Serializable {
+    string, bool, move, message, result, startGame, turn, isFirstPlayer, name, surrender, endGame, login, play,register;
 }

@@ -1,23 +1,11 @@
-package View;
+package MangMayTinh.Chess.View;
 
-import Comm.Message;
-import Comm.UI.UILib;
-import Model.UserInfo;
 
-import java.awt.BorderLayout;
-import java.awt.EventQueue;
+import MangMayTinh.Chess.Model.Entity.UserInfo;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
-import javax.swing.WindowConstants;
-
-import java.awt.Font;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.awt.*;
 import java.net.Socket;
 
 public class Information extends JFrame {
@@ -25,17 +13,13 @@ public class Information extends JFrame {
 	private JPanel contentPane;
 	private JTextField textFieldID;
 	private JTextField textFieldName;
-	private JTextField textFieldPhone;
-	private JTextField textFieldAddress;
-	private Login login;
-	private Socket socket;
-	private ObjectOutputStream oos;
-	private ObjectInputStream ois;
+	private JTextField textFieldEmail;
+	private JTextField textFieldPoint;
+	private UserInfo userInfo;
+//	private ObjectOutputStream oos;
+//	private ObjectInputStream ois;
 
 	//Method
-	public void setLogin(Login login){
-		this.login=login;
-	}
 
 	/**
 	 * Launch the application.
@@ -44,8 +28,8 @@ public class Information extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Information frame = new Information(new Login());
-					frame.setVisible(true);
+					Information information = new Information(new UserInfo(12,"tri123","tri","trithemoonlight3@gmail.com",12));
+					information.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -56,14 +40,8 @@ public class Information extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public Information(Login login) {
-		this.login=login;
-		try{
-			socket=new Socket("localhost",3001);
-		}catch (IOException e){
-			e.printStackTrace();
-		}
-
+	public Information(UserInfo userInfo) {
+		this.userInfo=userInfo;
 		setTitle("Information");
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setResizable(false);
@@ -84,7 +62,7 @@ public class Information extends JFrame {
 		lblNewLabel_1.setBounds(33, 53, 45, 13);
 		contentPane.add(lblNewLabel_1);
 		
-		JLabel lblNewLabel_2 = new JLabel("PhoneNumber");
+		JLabel lblNewLabel_2 = new JLabel("Email");
 		lblNewLabel_2.setFont(UILib.fontLabel);
 		lblNewLabel_2.setBounds(33, 76, 76, 13);
 		contentPane.add(lblNewLabel_2);
@@ -103,42 +81,31 @@ public class Information extends JFrame {
 		contentPane.add(textFieldName);
 		textFieldName.setColumns(30);
 		
-		textFieldPhone = new JTextField();
-		textFieldPhone.setEditable(false);
-		textFieldPhone.setFont(new Font("Times New Roman", Font.PLAIN, 13));
-		textFieldPhone.setBounds(106, 73, 204, 19);
-		contentPane.add(textFieldPhone);
-		textFieldPhone.setColumns(30);
+		textFieldEmail = new JTextField();
+		textFieldEmail.setEditable(false);
+		textFieldEmail.setFont(new Font("Times New Roman", Font.PLAIN, 13));
+		textFieldEmail.setBounds(106, 73, 204, 19);
+		contentPane.add(textFieldEmail);
+		textFieldEmail.setColumns(30);
 		
-		JLabel lblNewLabel_3 = new JLabel("Address");
-		lblNewLabel_3.setFont(new Font("Times New Roman", Font.PLAIN, 13));
+		JLabel lblNewLabel_3 = new JLabel("Point");
+		lblNewLabel_3.setFont(UILib.fontLabel);
 		lblNewLabel_3.setBounds(33, 99, 63, 13);
 		contentPane.add(lblNewLabel_3);
 		
-		textFieldAddress = new JTextField();
-		textFieldAddress.setEditable(false);
-		textFieldAddress.setFont(new Font("Times New Roman", Font.PLAIN, 13));
-		textFieldAddress.setBounds(106, 99, 204, 19);
-		contentPane.add(textFieldAddress);
-		textFieldAddress.setColumns(30);
+		textFieldPoint = new JTextField();
+		textFieldPoint.setEditable(false);
+		textFieldPoint.setFont(new Font("Times New Roman", Font.PLAIN, 13));
+		textFieldPoint.setBounds(106, 99, 204, 19);
+		contentPane.add(textFieldPoint);
+		textFieldPoint.setColumns(30);
 		loadUI();
 	}
 
 	private void loadUI() {
-		Message message= new Message();
-		message.setMess("getUI");
-		message.setObject(login.gettFusername().getText());
-		try {
-			oos=new ObjectOutputStream(socket.getOutputStream());
-			oos.writeObject(message);
-			ois=new ObjectInputStream(socket.getInputStream());
-			UserInfo ui=(UserInfo) ois.readObject();
-			this.textFieldID.setText(Integer.toString(ui.getId()));
-			this.textFieldName.setText(ui.getName());
-			this.textFieldAddress.setText(ui.getAddress());
-			this.textFieldPhone.setText(Integer.toString(ui.getPhonenumber()));
-		}catch (IOException | ClassNotFoundException e){
-			e.printStackTrace();
-		}
+		textFieldID.setText(Integer.toString(userInfo.getId()));
+		textFieldName.setText(userInfo.getName());
+		textFieldEmail.setText(userInfo.getEmail());
+		textFieldPoint.setText(Integer.toString(userInfo.getPoint()));
 	}
 }

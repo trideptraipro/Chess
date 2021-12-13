@@ -166,7 +166,7 @@ public class Server extends javax.swing.JFrame {
             }
         });
 
-        messageLabel.setForeground(new java.awt.Color(255, 0, 0));
+        messageLabel.setForeground(new Color(255, 0, 0));
         messageLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         messageLabel.setText("Server: Closed");
 
@@ -194,7 +194,7 @@ public class Server extends javax.swing.JFrame {
 
         jLabel1.setText("Port:");
 
-        portTextField.setText("5555");
+        portTextField.setText("6969");
         portTextField.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         portTextField.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
@@ -204,7 +204,7 @@ public class Server extends javax.swing.JFrame {
 
         jLabel2.setText("IP:");
 
-        ipAddressLabel.setForeground(new java.awt.Color(0, 0, 255));
+        ipAddressLabel.setForeground(new Color(0, 0, 255));
         ipAddressLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         ipAddressLabel.setText("IP Adress");
 

@@ -122,9 +122,9 @@ public class ModifyAccount {
 //        System.out.println(ModifyAccount.addAccount(new Account("new",
 //        "123"), new UserInfo("new","tri vo", "email@email")));
 //        System.out.println(ModifyAccount.getUserInfoByUserName("tridz").getEmail());
-        System.out.println(Account.ModifyAccount.checkAccount(new Account("tridz", "kodc")));
-        UserInfo ui=Account.ModifyAccount.getUserInfoByUserName("tri123");
+        System.out.println(ModifyAccount.checkAccount(new Account("tridz", "kodc")));
+        UserInfo ui=ModifyAccount.getUserInfoByUserName("tri123");
         ui.setEmail("vu@69");
-        System.out.println(Account.ModifyAccount.updateInfo(ui));
+        System.out.println(ModifyAccount.updateInfo(ui));
     }
 }

@@ -6,15 +6,22 @@
 package MangMayTinh.Chess.Connection.Client;
 
 import MangMayTinh.Chess.Model.Chessboard;
+import MangMayTinh.Chess.Model.Entity.Account;
+import MangMayTinh.Chess.Model.Entity.UserInfo;
 import MangMayTinh.Chess.Model.Interface.ChessboardInterface;
 import MangMayTinh.Chess.Model.Enum.MessageType;
 import MangMayTinh.Chess.Model.Move;
-import java.awt.Color;
+import MangMayTinh.Chess.View.Information;
+import MangMayTinh.Chess.View.Login;
+
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import javax.swing.JOptionPane;
+import javax.swing.*;
 
 /**
  *
@@ -25,6 +32,8 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
     Socket socket = null;
     int port = 0;
     String host = "";
+    ObjectInputStream receiverChess=null;
+    ObjectOutputStream senderChess=null;
     ObjectOutputStream sender = null;
     ObjectInputStream receiver = null;
     String myName = "";
@@ -34,6 +43,17 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
     boolean isMyTurn = false;
     boolean isFirstPlayer = false;
     boolean isRunning = false;
+    UserInfo userInfo;
+    Login login;
+    public Client(UserInfo userInfo, Login login){
+        this.userInfo=userInfo;
+        this.login= login;
+        this.sender = login.getSender();
+        this.receiver = login.getReceiver();
+        initComponents();
+        this.getRootPane().setDefaultButton(joinButton);
+        this.nameTextFiled.setText(userInfo.getUsername());
+    }
 
     /**
      * Creates new form Client
@@ -51,20 +71,20 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
             public void run() {
                 while (isRunning) {
                     try {
-                        MessageType type = (MessageType) receiver.readObject();
+                        MessageType type = (MessageType) receiverChess.readObject();
                         System.out.println("type: " + type);
                         switch (type) {
                             case string:
-                                String messageFromServer = (String) receiver.readObject();
+                                String messageFromServer = (String) receiverChess.readObject();
                                 messageLabel.setText(messageFromServer);
                                 break;
                             case move:
-                                Move move = (Move) receiver.readObject();
+                                Move move = (Move) receiverChess.readObject();
                                 Move newMove = move.clone();
                                 moveOpponent(newMove);
                                 break;
                             case result:
-                                boolean isWinner = (boolean) receiver.readObject();
+                                boolean isWinner = (boolean) receiverChess.readObject();
                                 informResult(isWinner);
                                 break;
                             case startGame:
@@ -74,15 +94,15 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
                                 isMyTurn = true;
                                 break;
                             case isFirstPlayer:
-                                boolean isFirst = (boolean) receiver.readObject();
+                                boolean isFirst = (boolean) receiverChess.readObject();
                                 isFirstPlayer = isFirst;
                                 sendMessageToServer(MessageType.name, myName);
                                 break;
                             case name:
-                                secondPlayerName = (String) receiver.readObject();
+                                secondPlayerName = (String) receiverChess.readObject();
                                 break;
                             case message:
-                                String message = (String) receiver.readObject();
+                                String message = (String) receiverChess.readObject();
                                 chessboard.addMessageHistory(message, !isFirstPlayer);
                                 break;
                             default:
@@ -158,8 +178,8 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
 
     private <T> void sendMessageToServer(MessageType type, T data) {
         try {
-            sender.writeObject(type);
-            sender.writeObject(data);
+            senderChess.writeObject(type);
+            senderChess.writeObject(data);
         } catch (Exception e) {
             System.out.print("Send data Error: Client");
             System.out.println(e.toString());
@@ -168,7 +188,7 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
 
     public void sendOperation(MessageType type) {
         try {
-            this.sender.writeObject(type);
+            this.senderChess.writeObject(type);
         } catch (Exception e) {
             System.out.print("Send data Error: ");
             System.out.println(e.toString());
@@ -197,6 +217,7 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
         portTextField = new javax.swing.JTextField();
         nameTextFiled = new javax.swing.JTextField();
         joinButton = new javax.swing.JButton();
+        infoButton =new JButton();
         messageLabel = new javax.swing.JLabel();
 
         jMenu1.setText("jMenu1");
@@ -214,7 +235,7 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
         setTitle("Chess client");
         setResizable(false);
 
-        jLabel1.setText("Server IP:");
+        jLabel1.setText("ServerInfo IP:");
 
         jLabel2.setText("Port:");
 
@@ -227,7 +248,7 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
             }
         });
 
-        portTextField.setText("5555");
+        portTextField.setText("6969");
         portTextField.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
                 didChangePort(evt);
@@ -240,7 +261,13 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
                 nameDidChange(evt);
             }
         });
-
+        infoButton.setText("Thông tin");
+        infoButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                infoButtonActionPerform(e);
+            }
+        });
         joinButton.setText("New Game");
         joinButton.setEnabled(false);
         joinButton.addActionListener(new java.awt.event.ActionListener() {
@@ -279,6 +306,10 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
                 .addGap(320, 320, 320)
                 .addComponent(joinButton)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(320,320, 320)
+                .addComponent(infoButton)
+                .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -299,12 +330,20 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
                     .addComponent(nameTextFiled, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(47, 47, 47)
                 .addComponent(joinButton)
+                .addContainerGap(209, Short.MAX_VALUE)
+                .addGap(47,47,47)
+                .addComponent(infoButton)
                 .addContainerGap(209, Short.MAX_VALUE))
         );
 
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
+
+    private void infoButtonActionPerform(ActionEvent e) {//event join Button
+        Information information= new Information(userInfo);
+        information.setVisible(true);
+    }
 
     private void didChangeServerIP(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_didChangeServerIP
         this.didChangeInput();
@@ -324,11 +363,16 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
         String name = this.nameTextFiled.getText();
         try {
             int port = Integer.parseInt(portString);
-            this.socket = new Socket(host, port);
             this.messageLabel.setForeground(Color.blue);
+            this.messageLabel.setText("Wait!");
+            if (this.socket == null){
+                this.socket = new Socket(host, port);
+                this.senderChess = new ObjectOutputStream(this.socket.getOutputStream());
+                this.receiverChess = new ObjectInputStream(this.socket.getInputStream());
+                this.messageLabel.setForeground(Color.blue);
+            }
             this.messageLabel.setText("Connected to server!");
-            this.sender = new ObjectOutputStream(this.socket.getOutputStream());
-            this.receiver = new ObjectInputStream(this.socket.getInputStream());
+
             //this.sendMessageToServer(MessageType.name, name);
             this.host = host;
             this.port = port;
@@ -403,6 +447,7 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
     private javax.swing.JTextField nameTextFiled;
     private javax.swing.JTextField portTextField;
     private javax.swing.JTextField serverIPTextField;
+    private JButton infoButton;
     // End of variables declaration//GEN-END:variables
 
     @Override

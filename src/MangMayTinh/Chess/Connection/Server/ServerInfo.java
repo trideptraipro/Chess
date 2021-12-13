@@ -5,6 +5,7 @@
  */
 package MangMayTinh.Chess.Connection.Server;
 
+import MangMayTinh.Chess.Model.DAO.ModifyAccount;
 import MangMayTinh.Chess.Model.Entity.Account;
 import MangMayTinh.Chess.Model.Entity.UserInfo;
 import MangMayTinh.Chess.Model.Enum.MessageType;
@@ -22,17 +23,18 @@ import java.util.Enumeration;
  *
  * @author thinhle
  */
-public class Server extends javax.swing.JFrame {
+public class ServerInfo extends javax.swing.JFrame {
     ArrayList<Player> clients = new ArrayList<>();
     Thread listener;
     ObjectOutputStream sender = null;
     ObjectInputStream receiver = null;
 
+
     
     /**
-     * Creates new form Server
+     * Creates new form ServerInfo
      */
-    public Server() {
+    public ServerInfo() {
         initComponents();
         InetAddress inetAddress = this.getInetAddress();
         this.ipAddressLabel.setText(inetAddress.getHostAddress());
@@ -42,7 +44,7 @@ public class Server extends javax.swing.JFrame {
     private void startServer(int port) {
         try {
             ServerSocket serverSocket = new ServerSocket(port);
-            Server server=this;
+            ServerInfo server=this;
             this.listener= new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -62,7 +64,7 @@ public class Server extends javax.swing.JFrame {
                 }
             });
             this.listener.start();
-            this.messageLabel.setText("Server started");
+            this.messageLabel.setText("ServerInfo started");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -144,7 +146,7 @@ public class Server extends javax.swing.JFrame {
         jMenu4.setText("jMenu4");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Chess Server");
+        setTitle("Chess ServerInfo");
         setResizable(false);
 
         startServerButton.setText("Start server");
@@ -165,7 +167,7 @@ public class Server extends javax.swing.JFrame {
 
         messageLabel.setForeground(new java.awt.Color(255, 0, 0));
         messageLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        messageLabel.setText("Server: Closed");
+        messageLabel.setText("ServerInfo: Closed");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -317,7 +319,7 @@ public class Server extends javax.swing.JFrame {
             System.out.println("Start");
             int port = Integer.parseInt(portString);
             messageLabel.setForeground(Color.green);
-            messageLabel.setText("Server started!");
+            messageLabel.setText("ServerInfo started!");
             System.out.println("RED");
             startServerButton.setEnabled(false);
             stopServerButton.setEnabled(true);
@@ -352,20 +354,20 @@ public class Server extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Server.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ServerInfo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Server.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ServerInfo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Server.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ServerInfo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Server.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ServerInfo.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Server().setVisible(true);
+                new ServerInfo().setVisible(true);
             }
         });
     }
@@ -392,7 +394,7 @@ public class Server extends javax.swing.JFrame {
     private class HandleServer extends Thread{
         ObjectOutputStream sender=null;
         ObjectInputStream receiver=null;
-        Server server;
+        ServerInfo server;
         Socket socket;
         HandleServer( Socket socket, ObjectInputStream receiver, ObjectOutputStream sender){
             this.socket=socket;
@@ -422,6 +424,7 @@ public class Server extends javax.swing.JFrame {
                             LoginPacket loginPacket=null;
                             if(MangMayTinh.Chess.Model.DAO.ModifyAccount.checkAccount(account)){
                                 loginPacket= new LoginPacket(account, "Accept");
+                                loginPacket.setUserInfo(ModifyAccount.getUserInfoByUserName(account.getUsername()));
                                 sendMessageToClient(MessageType.login,loginPacket );
                             }else {
                                 System.out.println("12");
