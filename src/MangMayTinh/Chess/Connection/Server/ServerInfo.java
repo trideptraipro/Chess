@@ -448,6 +448,9 @@ public class ServerInfo extends javax.swing.JFrame {
                                 sendMessageToClient(MessageType.register, "Deny");
                             }
                             break;
+                        case result:
+                            UserInfo userInfo1=(UserInfo) receiver.readObject();
+                            ModifyAccount.updatePoint(userInfo1);
                         default:
                             System.out.println("No anything");
                             break;

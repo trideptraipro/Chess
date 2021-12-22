@@ -6,17 +6,18 @@
 package MangMayTinh.Chess.Connection.Client;
 
 import MangMayTinh.Chess.Model.Chessboard;
-import MangMayTinh.Chess.Model.Entity.Account;
 import MangMayTinh.Chess.Model.Entity.UserInfo;
 import MangMayTinh.Chess.Model.Interface.ChessboardInterface;
 import MangMayTinh.Chess.Model.Enum.MessageType;
 import MangMayTinh.Chess.Model.Move;
 import MangMayTinh.Chess.View.Information;
 import MangMayTinh.Chess.View.Login;
+import MangMayTinh.Chess.View.UILib;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -53,6 +54,13 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
         initComponents();
         this.getRootPane().setDefaultButton(joinButton);
         this.nameTextFiled.setText(userInfo.getUsername());
+        this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                login.setVisible(true);
+            }
+        });
     }
 
     /**
@@ -64,6 +72,7 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
     }
 
     // --------------------- private function ---------------------------
+
     private void play() {
         this.isRunning = true;
         this.listener = new Thread(new Runnable() {
@@ -139,6 +148,31 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
         String message = "YOU WIN!";
         if (!isWinner) {
             message = "YOU LOSE!";
+            if(userInfo.getPoint()>50){
+                try {
+                    userInfo.setPoint(userInfo.getPoint()-50);
+                    sender.writeObject(MessageType.result);
+                    sender.writeObject(userInfo);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }else {
+                userInfo.setPoint(0);
+                try {
+                    sender.writeObject(MessageType.result);
+                    sender.writeObject(userInfo);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }else {
+            try {
+                userInfo.setPoint(userInfo.getPoint()+50);
+                sender.writeObject(MessageType.result);
+                sender.writeObject(userInfo);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         this.messageLabel.setText(message);
         this.chessboard.setMessage(message);
@@ -169,7 +203,7 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
     }
 
     private void didChangeInput() {
-        if (!this.serverIPTextField.getText().equals("") && !this.portTextField.getText().equals("") && !this.nameTextFiled.getText().equals("")) {
+        if (!this.nameTextFiled.getText().equals("")) {
             this.joinButton.setEnabled(true);
         } else {
             this.joinButton.setEnabled(false);
@@ -210,15 +244,12 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
         jCheckBoxMenuItem1 = new javax.swing.JCheckBoxMenuItem();
         jMenuItem1 = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        serverIPTextField = new javax.swing.JTextField();
-        portTextField = new javax.swing.JTextField();
         nameTextFiled = new javax.swing.JTextField();
         joinButton = new javax.swing.JButton();
-        infoButton =new JButton();
         messageLabel = new javax.swing.JLabel();
+        logoutButton = new javax.swing.JButton();
+        infoButton = new javax.swing.JButton();
 
         jMenu1.setText("jMenu1");
 
@@ -235,41 +266,19 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
         setTitle("Chess client");
         setResizable(false);
 
-        jLabel1.setText("ServerInfo IP:");
-
-        jLabel2.setText("Port:");
-
         jLabel3.setText("Name:");
 
-        serverIPTextField.setText("localhost");
-        serverIPTextField.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                didChangeServerIP(evt);
-            }
-        });
-
-        portTextField.setText("6969");
-        portTextField.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyTyped(java.awt.event.KeyEvent evt) {
-                didChangePort(evt);
-            }
-        });
-
         nameTextFiled.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        nameTextFiled.setEditable(false);
         nameTextFiled.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
                 nameDidChange(evt);
             }
         });
-        infoButton.setText("Thông tin");
-        infoButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                infoButtonActionPerform(e);
-            }
-        });
+
         joinButton.setText("New Game");
-        joinButton.setEnabled(false);
+        joinButton.setFont(UILib.fontButton);
+        joinButton.setEnabled(true);
         joinButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 joinButtonActionPerformed(evt);
@@ -278,62 +287,62 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
 
         messageLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
 
+        logoutButton.setText("Đăng xuất");
+        logoutButton.setFont(UILib.fontButton);
+        logoutButton.setEnabled(true);
+        logoutButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                joinButton1ActionPerformed(evt);
+            }
+        });
+
+        infoButton.setText("Thông tin");
+        infoButton.setFont(UILib.fontButton);
+        infoButton.setEnabled(true);
+        infoButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                infoButtonActionPerform(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(168, 168, 168)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel3)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(nameTextFiled, javax.swing.GroupLayout.PREFERRED_SIZE, 322, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jLabel2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(portTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 322, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addGap(29, 29, 29)
-                        .addComponent(serverIPTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 322, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(193, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(messageLabel)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(320, 320, 320)
-                .addComponent(joinButton)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(320,320, 320)
-                .addComponent(infoButton)
-                .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(messageLabel)
+                                        .addGroup(layout.createSequentialGroup()
+                                                .addGap(54, 54, 54)
+                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                                        .addComponent(logoutButton, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                        .addGroup(layout.createSequentialGroup()
+                                                                .addComponent(jLabel3)
+                                                                .addGap(41, 41, 41)
+                                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                                                                .addComponent(joinButton)
+                                                                                .addGap(57, 57, 57)
+                                                                                .addComponent(infoButton, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                                        .addComponent(nameTextFiled, javax.swing.GroupLayout.PREFERRED_SIZE, 322, javax.swing.GroupLayout.PREFERRED_SIZE))))))
+                                .addContainerGap(42, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(18, 18, 18)
-                .addComponent(messageLabel)
-                .addGap(93, 93, 93)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(serverIPTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(portTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(nameTextFiled, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(47, 47, 47)
-                .addComponent(joinButton)
-                .addContainerGap(209, Short.MAX_VALUE)
-                .addGap(47,47,47)
-                .addComponent(infoButton)
-                .addContainerGap(209, Short.MAX_VALUE))
+                layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createSequentialGroup()
+                                .addGap(18, 18, 18)
+                                .addComponent(messageLabel)
+                                .addGap(31, 31, 31)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                        .addComponent(jLabel3)
+                                        .addComponent(nameTextFiled, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(18, 18, 18)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                        .addComponent(joinButton)
+                                        .addComponent(infoButton))
+                                .addGap(42, 42, 42)
+                                .addComponent(logoutButton)
+                                .addContainerGap(31, Short.MAX_VALUE))
         );
 
         pack();
@@ -345,28 +354,17 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
         information.setVisible(true);
     }
 
-    private void didChangeServerIP(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_didChangeServerIP
-        this.didChangeInput();
-    }//GEN-LAST:event_didChangeServerIP
-
-    private void didChangePort(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_didChangePort
-        this.didChangeInput();
-    }//GEN-LAST:event_didChangePort
-
     private void nameDidChange(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_nameDidChange
         this.didChangeInput();
     }//GEN-LAST:event_nameDidChange
 
     private void joinButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_joinButtonActionPerformed
-        String portString = this.portTextField.getText();
-        String host = this.serverIPTextField.getText();
         String name = this.nameTextFiled.getText();
         try {
-            int port = Integer.parseInt(portString);
             this.messageLabel.setForeground(Color.blue);
             this.messageLabel.setText("Wait!");
             if (this.socket == null){
-                this.socket = new Socket(host, port);
+                this.socket = new Socket("116.110.15.77", 6969);
                 this.senderChess = new ObjectOutputStream(this.socket.getOutputStream());
                 this.receiverChess = new ObjectInputStream(this.socket.getInputStream());
                 this.messageLabel.setForeground(Color.blue);
@@ -381,9 +379,18 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
             this.play();
         } catch (Exception e) {
             System.out.println(e);
-            this.messageLabel.setText("Failed to connect to server: " + host + " with port: " + portString);
+            this.messageLabel.setText("Failed to connect to server: " + host + " with port: " );
         }
     }//GEN-LAST:event_joinButtonActionPerformed
+
+    private void joinButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_joinButton1ActionPerformed
+        this.dispose();
+        login.setVisible(true);
+    }//GEN-LAST:event_joinButton1ActionPerformed
+
+    private void joinButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_joinButton2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_joinButton2ActionPerformed
 
     public int getPort() {
         return port;
@@ -404,7 +411,7 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
@@ -434,8 +441,6 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem1;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
@@ -443,11 +448,10 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
     private javax.swing.JMenuItem jMenuItem1;
     private javax.swing.JPopupMenu jPopupMenu1;
     private javax.swing.JButton joinButton;
+    private javax.swing.JButton logoutButton;
+    private javax.swing.JButton infoButton;
     private javax.swing.JLabel messageLabel;
     private javax.swing.JTextField nameTextFiled;
-    private javax.swing.JTextField portTextField;
-    private javax.swing.JTextField serverIPTextField;
-    private JButton infoButton;
     // End of variables declaration//GEN-END:variables
 
     @Override

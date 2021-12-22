@@ -6,7 +6,6 @@ import MangMayTinh.Chess.Model.Entity.UserInfo;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.net.Socket;
 
 public class Information extends JFrame {
 

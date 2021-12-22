@@ -75,7 +75,7 @@ public class Login extends JFrame {
 
 	public Login() {
 		try{
-			this.socket=new Socket("localhost",5555);
+			this.socket=new Socket("116.110.15.77",5555);
 			this.sender= new ObjectOutputStream(socket.getOutputStream());
 			this.receiver= new ObjectInputStream(socket.getInputStream());
 
@@ -97,6 +97,7 @@ public class Login extends JFrame {
 								if (rep.equals("Accept")){
 									userInfo=loginPacket.getUserInfo();
 									Client client= new Client( userInfo,login );
+									login.setVisible(false);
 									client.setVisible(true);
 								}else {
 									System.out.println("Thất Bại");

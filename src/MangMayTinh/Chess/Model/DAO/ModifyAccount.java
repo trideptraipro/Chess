@@ -59,6 +59,25 @@ public class ModifyAccount {
         }
         return ui;
     }
+    public static boolean updatePoint(UserInfo ui){
+        PreparedStatement statement=null;
+        try{
+            Connection con=SQLConnect.getConnection();
+            String sql2="UPDATE user_info SET `point`=? WHERE `username`=?";
+            statement=con.prepareStatement(sql2);
+            statement.setInt(1,ui.getPoint());
+            statement.setString(2,ui.getUsername());
+            int n =statement.executeUpdate();
+            statement.close();
+            statement.close();
+            if(n!=0){
+                return true;
+            }
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+        return false;
+    }
     public static boolean  updateInfo(UserInfo ui){
         PreparedStatement statement=null;
         try{
@@ -74,8 +93,8 @@ public class ModifyAccount {
             if(n!=0){
                 return true;
             }
-        }catch (Exception e){
-            //To do
+        }catch (SQLException e){
+            e.printStackTrace();
         }
         return false;
     }
