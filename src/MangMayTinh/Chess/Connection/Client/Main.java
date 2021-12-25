@@ -5,12 +5,14 @@
  */
 package MangMayTinh.Chess.Connection.Client;
 
+import MangMayTinh.Chess.View.Login;
+
 /**
  *
  * @author thinhle
  */
 public class Main {
     public static void main(String[] args) {
-        new Client().setVisible(true);
+        new Login().setVisible(true);
     }
 }
