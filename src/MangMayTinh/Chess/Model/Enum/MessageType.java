@@ -12,5 +12,5 @@ import java.io.Serializable;
  * @author thinhle
  */
 public enum MessageType implements Serializable {
-    string, bool, move, message, result, startGame, turn, isFirstPlayer, name, surrender, endGame, login, play,register;
+    string, bool, move, message, result, startGame, turn, isFirstPlayer, name, surrender, endGame, login, play,register,out;
 }

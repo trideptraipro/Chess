@@ -84,7 +84,7 @@ public class Register extends JFrame {
 		}catch (Exception e){
 
 		}
-		setTitle("Đăng kí");
+		setTitle("Register");
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		setResizable(false);
 		setBounds(100, 100, 400, 320);

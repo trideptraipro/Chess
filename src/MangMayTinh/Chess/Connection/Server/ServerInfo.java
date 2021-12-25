@@ -451,6 +451,10 @@ public class ServerInfo extends javax.swing.JFrame {
                         case result:
                             UserInfo userInfo1=(UserInfo) receiver.readObject();
                             ModifyAccount.updatePoint(userInfo1);
+                        case out:
+                            this.socket.close();
+                            this.interrupt();
+                            break;
                         default:
                             System.out.println("No anything");
                             break;

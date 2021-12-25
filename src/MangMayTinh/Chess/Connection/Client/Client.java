@@ -174,6 +174,12 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
                 e.printStackTrace();
             }
         }
+        try {
+            socket.close();
+            socket=null;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         this.messageLabel.setText(message);
         this.chessboard.setMessage(message);
         JOptionPane.showMessageDialog(this, message, title, JOptionPane.INFORMATION_MESSAGE);
@@ -287,7 +293,7 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
 
         messageLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
 
-        logoutButton.setText("Đăng xuất");
+        logoutButton.setText("Logout");
         logoutButton.setFont(UILib.fontButton);
         logoutButton.setEnabled(true);
         logoutButton.addActionListener(new java.awt.event.ActionListener() {
@@ -296,7 +302,7 @@ public class Client extends javax.swing.JFrame implements ChessboardInterface {
             }
         });
 
-        infoButton.setText("Thông tin");
+        infoButton.setText("Information");
         infoButton.setFont(UILib.fontButton);
         infoButton.setEnabled(true);
         infoButton.addActionListener(new java.awt.event.ActionListener() {

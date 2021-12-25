@@ -83,6 +83,47 @@ public class Login extends JFrame {
 
 		}
 		Login login= this;
+		this.addWindowListener(new WindowListener() {
+			@Override
+			public void windowOpened(WindowEvent e) {
+
+			}
+
+			@Override
+			public void windowClosing(WindowEvent e) {
+				try {
+					sender.writeObject(MessageType.out);
+					socket.close();
+				} catch (IOException ioException) {
+					ioException.printStackTrace();
+				}
+			}
+
+			@Override
+			public void windowClosed(WindowEvent e) {
+
+			}
+
+			@Override
+			public void windowIconified(WindowEvent e) {
+
+			}
+
+			@Override
+			public void windowDeiconified(WindowEvent e) {
+
+			}
+
+			@Override
+			public void windowActivated(WindowEvent e) {
+
+			}
+
+			@Override
+			public void windowDeactivated(WindowEvent e) {
+
+			}
+		});
 		this.listener=new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -125,7 +166,7 @@ public class Login extends JFrame {
 			}
 		});
 		this.listener.start();
-		setTitle("VT");
+		setTitle("VTChess");
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setResizable(false);
 		setBounds(100, 100, 347, 199);
